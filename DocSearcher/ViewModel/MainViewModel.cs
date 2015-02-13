@@ -1,3 +1,4 @@
+using DocSearcher.Utilities;
 using GalaSoft.MvvmLight;
 using System;
 using System.Collections;
@@ -35,11 +36,22 @@ namespace DocSearcher.ViewModel
 
         public MainViewModel()
         {
+
+            //********* here you are your test fonctions **********
+            Test();
+            //*****************************************************
+
             Task.Run(() =>
             {
                 StartScanning();
             });
             
+        }
+
+        void Test()
+        {
+            DrivesExplorer exp = new DrivesExplorer();
+            var dfhg = exp.GetUsedSpace();
         }
 
         private void StartScanning()
