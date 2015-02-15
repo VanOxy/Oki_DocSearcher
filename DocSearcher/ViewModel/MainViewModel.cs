@@ -74,7 +74,7 @@ namespace DocSearcher.ViewModel
         {
 
             //********* here you are your test fonctions **********
-
+            // hello
             _totalSize = new DrivesExplorer().GetUsedSpace();
 
             //*****************************************************
