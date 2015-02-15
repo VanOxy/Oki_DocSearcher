@@ -15,10 +15,10 @@ namespace DocSearcher.ViewModel
         private string[] _extensions = { ".pdf", ".doc", ".docx" };
         private List<string> _paths = new List<string>();
 
+        private int _filesScanned = 0;
         private int _filesFound = 0;
-        private int _copyProgress;
-        private int _totalSize = 0;
-        private int _sizeToDl;
+        private long _totalSize = 0;
+        private long _progress = 0;
 
         #region Setters & Getters
 
@@ -32,26 +32,57 @@ namespace DocSearcher.ViewModel
             }
         }
 
+        public long TotalSize
+        {
+            get { return _totalSize; }
+            private set
+            {
+                _totalSize = value;
+                RaisePropertyChanged("TotalSize");
+            }
+        }
+
+        public long Progress
+        {
+            get { return _progress; }
+            private set
+            {
+                if (_progress != value)
+                {
+                    _progress = value;
+                    RaisePropertyChanged("Progress");
+                }
+            }
+        }
+
+        public int FilesScanned
+        {
+            get { return _filesScanned; }
+            private set
+            {
+                if (_filesScanned != value)
+                {
+                    _filesScanned = value;
+                    RaisePropertyChanged("FilesScanned");
+                }
+            }
+        }
+
         #endregion Setters & Getters
 
         public MainViewModel()
         {
 
             //********* here you are your test fonctions **********
-            Test();
+
+            _totalSize = new DrivesExplorer().GetUsedSpace();
+
             //*****************************************************
 
             Task.Run(() =>
             {
                 StartScanning();
             });
-            
-        }
-
-        void Test()
-        {
-            DrivesExplorer exp = new DrivesExplorer();
-            var dfhg = exp.GetUsedSpace();
         }
 
         private void StartScanning()
@@ -97,11 +128,9 @@ namespace DocSearcher.ViewModel
                     {
                         file_list.Add(file_info.FullName);
                         FilesFound++;
-                        /// todo
-                        /// add file weight into _totalSize
-                        /// like this
-                        /// _totalSize += file_info.Lenght;
                     }
+                    FilesScanned++;
+                    Progress += file_info.Length;
                 }
             }
             catch { }
