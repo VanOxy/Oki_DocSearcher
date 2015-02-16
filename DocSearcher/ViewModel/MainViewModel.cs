@@ -19,6 +19,7 @@ namespace DocSearcher.ViewModel
         private int _filesFound = 0;
         private long _totalSize = 0;
         private long _progress = 0;
+        private string _scaningFilePath = "";
 
         #region Setters & Getters
 
@@ -64,6 +65,21 @@ namespace DocSearcher.ViewModel
                 {
                     _filesScanned = value;
                     RaisePropertyChanged("FilesScanned");
+                }
+            }
+        }
+
+        public string ScaningFilePath {
+            get
+            {
+                return _scaningFilePath;
+            }
+            private set
+            {
+                if (_scaningFilePath != value)
+                {
+                    _scaningFilePath = value;
+                    RaisePropertyChanged("ScaningFilePath");
                 }
             }
         }
@@ -129,6 +145,8 @@ namespace DocSearcher.ViewModel
                         file_list.Add(file_info.FullName);
                         FilesFound++;
                     }
+
+                    ScaningFilePath = file_info.FullName;
                     FilesScanned++;
                     Progress += file_info.Length;
                 }

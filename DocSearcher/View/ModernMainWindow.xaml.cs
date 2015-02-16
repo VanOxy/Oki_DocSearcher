@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FirstFloor.ModernUI.Windows.Controls;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,14 +14,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace DocSearcher
+namespace DocSearcher.View
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for ModernMainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class ModernMainWindow : ModernWindow
     {
-        public MainWindow()
+        public ModernMainWindow()
         {
             InitializeComponent();
         }
