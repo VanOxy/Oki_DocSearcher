@@ -11,7 +11,6 @@ namespace DocSearcher.Utilities
     {
         /// <summary>
         /// Function returns total amound of space ocuped by files on all drives.
-        /// Returned numers is in megabites. Attention!!! Average value.
         /// </summary>
         /// <returns></returns>
         public long GetUsedSpace()
@@ -27,21 +26,6 @@ namespace DocSearcher.Utilities
                 }
             }
             return usedSpace;
-        }
-
-        public long GetTotalSpace()
-        {
-            long totalSpace = 0;
-            DriveInfo[] drives = DriveInfo.GetDrives();
-
-            foreach (var drive in drives)
-            {
-                if (drive.IsReady && drive.DriveType == DriveType.Fixed)
-                {
-                    totalSpace =+ drive.TotalSize;
-                }
-            }
-            return totalSpace;
         }
     }
 }

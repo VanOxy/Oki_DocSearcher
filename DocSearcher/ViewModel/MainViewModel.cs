@@ -91,8 +91,7 @@ namespace DocSearcher.ViewModel
 
             //********* here you are your test fonctions **********
             // hello
-            _totalSize = new DrivesExplorer().GetUsedSpace();
-
+            TotalSize = new DrivesExplorer().GetUsedSpace();
             //*****************************************************
 
             Task.Run(() =>
@@ -112,6 +111,7 @@ namespace DocSearcher.ViewModel
                     ExploreDrive(drive.Name);
                 }
             }
+            ScaningFilePath = "Done :)";
         }
 
         private void ExploreDrive(string driveName)
@@ -150,6 +150,7 @@ namespace DocSearcher.ViewModel
                     FilesScanned++;
                     Progress += file_info.Length;
                 }
+                
             }
             catch { }
         }
