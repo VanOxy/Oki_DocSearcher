@@ -150,7 +150,6 @@ namespace DocSearcher.ViewModel
                     FilesScanned++;
                     Progress += file_info.Length;
                 }
-                
             }
             catch { }
         }

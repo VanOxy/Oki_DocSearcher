@@ -4,15 +4,15 @@
                   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
                   xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
                   xmlns:mui="http://firstfloorsoftware.com/ModernUI"
+                  xmlns:local="clr-namespace:DocSearcher"
                   mc:Ignorable="d" 
                   Title="Oki_DocSearcher"
-                  Height="130" Width="566.09" MinHeight="130" MinWidth="400"
+                  Height="130" Width="566" MinHeight="130" MinWidth="400"
                   ResizeMode="CanMinimize"
-                  Style="{StaticResource BlankWindow}" 
+                  Style="{StaticResource BlankWindow}"
                   DataContext="{Binding Source={StaticResource Locator}, Path=Main}">
 
     <Grid>
-
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="186*" />
             <ColumnDefinition Width="131*" />
@@ -25,20 +25,18 @@
         </Grid.RowDefinitions>
 
         <Label Content="Files scanned" Margin="10,0,0,0" VerticalAlignment="Center"/>
-        <Label Content="{Binding FilesScanned}" Grid.ColumnSpan="2" Margin="100,0,0,0"
-               VerticalAlignment="Center" />
+        <Label Content="{Binding FilesScanned}"
+                   Grid.ColumnSpan="2" Margin="100,0,0,0" VerticalAlignment="Center" />
 
         <Label Content="Files found" Grid.Column="1" Margin="0,0,10,0" 
-               VerticalAlignment="Center" HorizontalAlignment="Right" Height="16" Width="67"/>
-        <Label Content="{Binding FilesFound}" Grid.Column="2"  VerticalAlignment="Center"/>
+                   VerticalAlignment="Center" HorizontalAlignment="Right" />
+        <Label Content="{Binding FilesFound}" Grid.Column="2" VerticalAlignment="Center"/>
 
         <Label Content="Progress" Grid.Row="1" Margin="10,0,0,0" VerticalAlignment="Center"/>
         <ProgressBar Maximum="{Binding TotalSize}" Minimum="0" Value="{Binding Progress}"
-               Grid.ColumnSpan="3" Grid.Row="1" Height="18" Margin="80,0,10,0" VerticalAlignment="Center"/>
+                   Grid.ColumnSpan="3" Grid.Row="1" Height="18" Margin="80,0,10,0" VerticalAlignment="Center"/>
 
         <Label Content="{Binding ScaningFilePath}" 
                Grid.Row="2" Margin="10,0,0,0" Grid.ColumnSpan="3" VerticalAlignment="Center"/>
-
     </Grid>
-
 </mui:ModernWindow>
