@@ -1,6 +1,8 @@
 using DocSearcher.Control;
+using DocSearcher.Message;
 using DocSearcher.Utilities;
 using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.Messaging;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,6 +11,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Threading;
 
 namespace DocSearcher.ViewModel
 {
@@ -17,7 +20,7 @@ namespace DocSearcher.ViewModel
         #region UserControlManagement
 
         public SelectionControl SelectionControl;
-        public ResearchControl ResearchCOntrol;
+        public ResearchControl ResearchControl;
         private UserControl _activeView;
 
         public UserControl ActiveView
@@ -48,15 +51,27 @@ namespace DocSearcher.ViewModel
 
         public MainViewModel()
         {
+            Messenger.Default.Register<MainWindowUidMessage>(this, LoadControls);
             //********* here you are your test fonctions **********
             // hello
             TotalSize = new DrivesExplorer().GetUsedSpace();
             //*****************************************************
 
-            Task.Run(() =>
+            //Task.Run(() =>
+            //{
+            //    StartScanning();
+            //});
+        }
+
+        private void LoadControls(MainWindowUidMessage obj)
+        {
+            Dispatcher.FromThread(obj.ThreadUid).Invoke(() =>
             {
-                StartScanning();
+                SelectionControl = new SelectionControl();
+                ResearchControl = new ResearchControl();
             });
+
+            ActiveView = SelectionControl;
         }
 
         private void StartScanning()
