@@ -1,3 +1,4 @@
+using DocSearcher.Control;
 using DocSearcher.Utilities;
 using GalaSoft.MvvmLight;
 using System;
@@ -7,11 +8,35 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace DocSearcher.ViewModel
 {
     public class MainViewModel : ViewModelBase
     {
+        #region UserControlManagement
+
+        public SelectionControl SelectionControl;
+        public ResearchControl ResearchCOntrol;
+        private UserControl _activeView;
+
+        public UserControl ActiveView
+        {
+            get
+            {
+                return _activeView;
+            }
+            set
+            {
+                if (_activeView == value)
+                    return;
+                _activeView = value;
+                RaisePropertyChanged("ActiveView");
+            }
+        }
+
+        #endregion UserControlManagement
+
         private string[] _extensions = { ".pdf", ".doc", ".docx" };
         private List<string> _paths = new List<string>();
 
@@ -21,74 +46,8 @@ namespace DocSearcher.ViewModel
         private long _progress = 0;
         private string _scaningFilePath = "";
 
-        #region Setters & Getters
-
-        public int FilesFound
-        {
-            get { return _filesFound; }
-            private set
-            { 
-                _filesFound = value;
-                RaisePropertyChanged("FilesFound"); 
-            }
-        }
-
-        public long TotalSize
-        {
-            get { return _totalSize; }
-            private set
-            {
-                _totalSize = value;
-                RaisePropertyChanged("TotalSize");
-            }
-        }
-
-        public long Progress
-        {
-            get { return _progress; }
-            private set
-            {
-                if (_progress != value)
-                {
-                    _progress = value;
-                    RaisePropertyChanged("Progress");
-                }
-            }
-        }
-
-        public int FilesScanned
-        {
-            get { return _filesScanned; }
-            private set
-            {
-                if (_filesScanned != value)
-                {
-                    _filesScanned = value;
-                    RaisePropertyChanged("FilesScanned");
-                }
-            }
-        }
-
-        public string ScaningFilePath {
-            get
-            {
-                return _scaningFilePath;
-            }
-            private set
-            {
-                if (_scaningFilePath != value)
-                {
-                    _scaningFilePath = value;
-                    RaisePropertyChanged("ScaningFilePath");
-                }
-            }
-        }
-
-        #endregion Setters & Getters
-
         public MainViewModel()
         {
-
             //********* here you are your test fonctions **********
             // hello
             TotalSize = new DrivesExplorer().GetUsedSpace();
@@ -153,5 +112,71 @@ namespace DocSearcher.ViewModel
             }
             catch { }
         }
+
+        #region Setters & Getters
+
+        public int FilesFound
+        {
+            get { return _filesFound; }
+            private set
+            {
+                _filesFound = value;
+                RaisePropertyChanged("FilesFound");
+            }
+        }
+
+        public long TotalSize
+        {
+            get { return _totalSize; }
+            private set
+            {
+                _totalSize = value;
+                RaisePropertyChanged("TotalSize");
+            }
+        }
+
+        public long Progress
+        {
+            get { return _progress; }
+            private set
+            {
+                if (_progress != value)
+                {
+                    _progress = value;
+                    RaisePropertyChanged("Progress");
+                }
+            }
+        }
+
+        public int FilesScanned
+        {
+            get { return _filesScanned; }
+            private set
+            {
+                if (_filesScanned != value)
+                {
+                    _filesScanned = value;
+                    RaisePropertyChanged("FilesScanned");
+                }
+            }
+        }
+
+        public string ScaningFilePath
+        {
+            get
+            {
+                return _scaningFilePath;
+            }
+            private set
+            {
+                if (_scaningFilePath != value)
+                {
+                    _scaningFilePath = value;
+                    RaisePropertyChanged("ScaningFilePath");
+                }
+            }
+        }
+
+        #endregion Setters & Getters
     }
 }

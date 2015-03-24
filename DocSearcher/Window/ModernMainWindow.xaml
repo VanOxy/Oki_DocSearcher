@@ -1,0 +1,17 @@
+﻿<mui:ModernWindow x:Class="DocSearcher.View.ModernMainWindow"
+                  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                  xmlns:mui="http://firstfloorsoftware.com/ModernUI"
+                  xmlns:local="clr-namespace:DocSearcher"
+                  mc:Ignorable="d"
+                  Title="Oki_DocSearcher"
+                  Style="{StaticResource BlankWindow}"
+                  DataContext="{Binding Source={StaticResource Locator}, Path=Main}"
+                  Loaded="ModernWindow_Loaded">
+
+    <Grid>
+        <ContentControl Content="{Binding ActiveView}" />
+    </Grid>
+</mui:ModernWindow>
