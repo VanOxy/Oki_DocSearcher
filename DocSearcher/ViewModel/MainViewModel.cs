@@ -3,7 +3,9 @@ using DocSearcher.Message;
 using DocSearcher.Model;
 using DocSearcher.Utilities;
 using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.CommandWpf;
 using GalaSoft.MvvmLight.Messaging;
+using Microsoft.Win32;
 using SQLite;
 using System;
 using System.Collections.Generic;
@@ -21,6 +23,7 @@ namespace DocSearcher.ViewModel
 
         public SelectionControl SelectionControl;
         public ResearchControl ResearchControl;
+        public ExtensionsManagementControl ExtensionsManagementControl;
         private UserControl _activeView;
 
         public UserControl ActiveView
@@ -42,6 +45,8 @@ namespace DocSearcher.ViewModel
 
         #region ArraysForExtensionsTypes
 
+        public List<string> FileTypes { get; set; }
+
         public ObservableCollection<Extension> ImageExtensions { get; set; }
 
         public ObservableCollection<Extension> MusicExtensions { get; set; }
@@ -58,9 +63,55 @@ namespace DocSearcher.ViewModel
             VideoExtensions = new ObservableCollection<Extension>();
         }
 
+        private void InitFileTypes()
+        {
+            FileTypes = new List<string>();
+            FileTypes.Add("Documents");
+            FileTypes.Add("Video");
+            FileTypes.Add("Images");
+            FileTypes.Add("Music");
+        }
+
+        private void InitExtensions(SQLiteConnection db)
+        {
+            if (!(db.Table<Extension>().Count() > 0))
+            {
+                db.Insert(new Extension()
+                {
+                    Name = "jpg",
+                    Type = "image"
+                });
+                db.Insert(new Extension()
+                {
+                    Name = "png",
+                    Type = "image"
+                });
+                db.Insert(new Extension()
+                {
+                    Name = "gif",
+                    Type = "image"
+                });
+                db.Insert(new Extension()
+                {
+                    Name = "doc",
+                    Type = "document"
+                });
+                db.Insert(new Extension()
+                {
+                    Name = "mp3",
+                    Type = "music"
+                });
+                db.Insert(new Extension()
+                {
+                    Name = "flv",
+                    Type = "video"
+                });
+            }
+        }
+
         #endregion ArraysForExtensionsTypes
 
-        #region Setters & Getters
+        #region FilesResearch
 
         public int FilesFound
         {
@@ -124,7 +175,31 @@ namespace DocSearcher.ViewModel
             }
         }
 
-        #endregion Setters & Getters
+        #endregion FilesResearch
+
+        #region Commands
+
+        public RelayCommand ManageExtensionsCommand { get; set; }
+
+        public RelayCommand AcceedSelectionControlCommand { get; set; }
+
+        private void InitCommands()
+        {
+            ManageExtensionsCommand = new RelayCommand(ManageExtensions);
+            AcceedSelectionControlCommand = new RelayCommand(AcceedSelectionControl);
+        }
+
+        private void AcceedSelectionControl()
+        {
+            ActiveView = SelectionControl;
+        }
+
+        private void ManageExtensions()
+        {
+            ActiveView = ExtensionsManagementControl;
+        }
+
+        #endregion Commands
 
         private List<string> _extensions = new List<string>();
         private List<string> _paths = new List<string>();
@@ -138,12 +213,11 @@ namespace DocSearcher.ViewModel
         public MainViewModel()
         {
             Messenger.Default.Register<MainWindowUidMessage>(this, LoadControls);
-
-            //********* here you are your test fonctions **********
+            InitCommands();
+            InitExtensionCollections();
+            InitFileTypes();
 
             TotalSize = new DrivesExplorer().GetUsedSpace();
-
-            InitExtensionCollections();
 
             //Task.Run(() =>
             //{
@@ -154,10 +228,7 @@ namespace DocSearcher.ViewModel
             {
                 db.CreateTable<Extension>();
 
-                if (!(db.Table<Extension>().Count() > 0))
-                {
-                    InsertSomeDatasIntoTable(db);
-                }
+                InitExtensions(db);
 
                 var extensions = db.Table<Extension>().ToList();
 
@@ -186,8 +257,6 @@ namespace DocSearcher.ViewModel
                     }
                 }
             }
-
-            //*****************************************************
         }
 
         private void LoadControls(MainWindowUidMessage obj)
@@ -196,6 +265,7 @@ namespace DocSearcher.ViewModel
             {
                 SelectionControl = new SelectionControl();
                 ResearchControl = new ResearchControl();
+                ExtensionsManagementControl = new ExtensionsManagementControl();
             });
 
             ActiveView = SelectionControl;
@@ -254,43 +324,5 @@ namespace DocSearcher.ViewModel
             }
             catch { }
         }
-
-        #region TestSection
-
-        private void InsertSomeDatasIntoTable(SQLiteConnection db)
-        {
-            db.Insert(new Extension()
-            {
-                Name = "jpg",
-                Type = "image"
-            });
-            db.Insert(new Extension()
-            {
-                Name = "png",
-                Type = "image"
-            });
-            db.Insert(new Extension()
-            {
-                Name = "gif",
-                Type = "image"
-            });
-            db.Insert(new Extension()
-            {
-                Name = "doc",
-                Type = "document"
-            });
-            db.Insert(new Extension()
-            {
-                Name = "mp3",
-                Type = "music"
-            });
-            db.Insert(new Extension()
-            {
-                Name = "flv",
-                Type = "video"
-            });
-        }
-
-        #endregion TestSection
     }
 }

@@ -105,6 +105,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Control\ExtensionsManagementControl.xaml.cs">
+      <DependentUpon>ExtensionsManagementControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Control\ResearchControl.xaml.cs">
       <DependentUpon>ResearchControl.xaml</DependentUpon>
     </Compile>
@@ -129,6 +132,10 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Control\ExtensionsManagementControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Control\ResearchControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -188,7 +195,10 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="src\doc.png" />
+    <Resource Include="src\music.png" />
+    <Resource Include="src\video.png" />
+    <Resource Include="src\image.png" />
+    <Resource Include="src\document.png" />
     <Resource Include="src\DocSearcherIcon.ico" />
     <Content Include="sqlite3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
