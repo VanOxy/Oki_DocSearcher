@@ -8,9 +8,9 @@
                   mc:Ignorable="d"
                   Title="Oki_DocSearcher"
                   Style="{StaticResource BlankWindow}"
-                  DataContext="{Binding Source={StaticResource Locator}, Path=Main}"
                   Loaded="ModernWindow_Loaded"
-                  Width="auto" Height="auto">
+                  Width="auto" Height="auto"
+                  DataContext="{Binding Source={StaticResource Locator}, Path=Main}">
 
     <Grid>
         <ContentControl Content="{Binding ActiveView}" />

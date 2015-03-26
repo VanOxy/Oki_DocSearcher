@@ -1,15 +1,15 @@
 using DocSearcher.Control;
 using DocSearcher.Message;
+using DocSearcher.Model;
 using DocSearcher.Utilities;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Messaging;
+using SQLite;
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 
@@ -40,7 +40,93 @@ namespace DocSearcher.ViewModel
 
         #endregion UserControlManagement
 
-        private string[] _extensions = { ".pdf", ".doc", ".docx" };
+        #region ArraysForExtensionsTypes
+
+        public ObservableCollection<Extension> ImageExtensions { get; set; }
+
+        public ObservableCollection<Extension> MusicExtensions { get; set; }
+
+        public ObservableCollection<Extension> DocumentExtensions { get; set; }
+
+        public ObservableCollection<Extension> VideoExtensions { get; set; }
+
+        private void InitExtensionCollections()
+        {
+            ImageExtensions = new ObservableCollection<Extension>();
+            MusicExtensions = new ObservableCollection<Extension>();
+            DocumentExtensions = new ObservableCollection<Extension>();
+            VideoExtensions = new ObservableCollection<Extension>();
+        }
+
+        #endregion ArraysForExtensionsTypes
+
+        #region Setters & Getters
+
+        public int FilesFound
+        {
+            get { return _filesFound; }
+            private set
+            {
+                _filesFound = value;
+                RaisePropertyChanged("FilesFound");
+            }
+        }
+
+        public long TotalSize
+        {
+            get { return _totalSize; }
+            private set
+            {
+                _totalSize = value;
+                RaisePropertyChanged("TotalSize");
+            }
+        }
+
+        public long Progress
+        {
+            get { return _progress; }
+            private set
+            {
+                if (_progress != value)
+                {
+                    _progress = value;
+                    RaisePropertyChanged("Progress");
+                }
+            }
+        }
+
+        public int FilesScanned
+        {
+            get { return _filesScanned; }
+            private set
+            {
+                if (_filesScanned != value)
+                {
+                    _filesScanned = value;
+                    RaisePropertyChanged("FilesScanned");
+                }
+            }
+        }
+
+        public string ScaningFilePath
+        {
+            get
+            {
+                return _scaningFilePath;
+            }
+            private set
+            {
+                if (_scaningFilePath != value)
+                {
+                    _scaningFilePath = value;
+                    RaisePropertyChanged("ScaningFilePath");
+                }
+            }
+        }
+
+        #endregion Setters & Getters
+
+        private List<string> _extensions = new List<string>();
         private List<string> _paths = new List<string>();
 
         private int _filesScanned = 0;
@@ -52,15 +138,56 @@ namespace DocSearcher.ViewModel
         public MainViewModel()
         {
             Messenger.Default.Register<MainWindowUidMessage>(this, LoadControls);
+
             //********* here you are your test fonctions **********
-            // hello
+
             TotalSize = new DrivesExplorer().GetUsedSpace();
-            //*****************************************************
+
+            InitExtensionCollections();
 
             //Task.Run(() =>
             //{
             //    StartScanning();
             //});
+
+            using (var db = new SQLiteConnection("localDB.sqlite"))
+            {
+                db.CreateTable<Extension>();
+
+                if (!(db.Table<Extension>().Count() > 0))
+                {
+                    InsertSomeDatasIntoTable(db);
+                }
+
+                var extensions = db.Table<Extension>().ToList();
+
+                foreach (var ext in extensions)
+                {
+                    switch (ext.Type)
+                    {
+                        case "image":
+                            ImageExtensions.Add(ext);
+                            break;
+
+                        case "video":
+                            VideoExtensions.Add(ext);
+                            break;
+
+                        case "document":
+                            DocumentExtensions.Add(ext);
+                            break;
+
+                        case "music":
+                            MusicExtensions.Add(ext);
+                            break;
+
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            //*****************************************************
         }
 
         private void LoadControls(MainWindowUidMessage obj)
@@ -128,70 +255,42 @@ namespace DocSearcher.ViewModel
             catch { }
         }
 
-        #region Setters & Getters
+        #region TestSection
 
-        public int FilesFound
+        private void InsertSomeDatasIntoTable(SQLiteConnection db)
         {
-            get { return _filesFound; }
-            private set
+            db.Insert(new Extension()
             {
-                _filesFound = value;
-                RaisePropertyChanged("FilesFound");
-            }
+                Name = "jpg",
+                Type = "image"
+            });
+            db.Insert(new Extension()
+            {
+                Name = "png",
+                Type = "image"
+            });
+            db.Insert(new Extension()
+            {
+                Name = "gif",
+                Type = "image"
+            });
+            db.Insert(new Extension()
+            {
+                Name = "doc",
+                Type = "document"
+            });
+            db.Insert(new Extension()
+            {
+                Name = "mp3",
+                Type = "music"
+            });
+            db.Insert(new Extension()
+            {
+                Name = "flv",
+                Type = "video"
+            });
         }
 
-        public long TotalSize
-        {
-            get { return _totalSize; }
-            private set
-            {
-                _totalSize = value;
-                RaisePropertyChanged("TotalSize");
-            }
-        }
-
-        public long Progress
-        {
-            get { return _progress; }
-            private set
-            {
-                if (_progress != value)
-                {
-                    _progress = value;
-                    RaisePropertyChanged("Progress");
-                }
-            }
-        }
-
-        public int FilesScanned
-        {
-            get { return _filesScanned; }
-            private set
-            {
-                if (_filesScanned != value)
-                {
-                    _filesScanned = value;
-                    RaisePropertyChanged("FilesScanned");
-                }
-            }
-        }
-
-        public string ScaningFilePath
-        {
-            get
-            {
-                return _scaningFilePath;
-            }
-            private set
-            {
-                if (_scaningFilePath != value)
-                {
-                    _scaningFilePath = value;
-                    RaisePropertyChanged("ScaningFilePath");
-                }
-            }
-        }
-
-        #endregion Setters & Getters
+        #endregion TestSection
     }
 }
