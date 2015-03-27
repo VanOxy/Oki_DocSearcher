@@ -1,17 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using DocSearcher.Message;
+using GalaSoft.MvvmLight.Messaging;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace DocSearcher.Control
 {
@@ -20,6 +10,11 @@ namespace DocSearcher.Control
         public ExtensionsManagementControl()
         {
             InitializeComponent();
+        }
+
+        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            Messenger.Default.Send(new ExtensionManagementFileTypeSelectedMessage((sender as ComboBox).SelectedValue.ToString()));
         }
     }
 }

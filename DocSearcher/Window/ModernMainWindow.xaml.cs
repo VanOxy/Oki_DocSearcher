@@ -1,4 +1,5 @@
-﻿using DocSearcher.Message;
+﻿using DocSearcher.Control;
+using DocSearcher.Message;
 using FirstFloor.ModernUI.Windows.Controls;
 using GalaSoft.MvvmLight.Messaging;
 using System.Threading;

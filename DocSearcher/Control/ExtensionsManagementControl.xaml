@@ -19,9 +19,12 @@
         <TextBlock Text="Extensions Manager" Grid.Row="0" Grid.ColumnSpan="3"
                        FontWeight="Bold" FontSize="14" Margin="0 0 0 10" />
 
-        <ComboBox Grid.Row="1" ItemsSource="{Binding FileTypes}" Margin="5" />
+        <ComboBox Grid.Row="1" ItemsSource="{Binding FileTypes}" Margin="5" SelectionChanged="ComboBox_SelectionChanged"
+                  HorizontalAlignment="Left" VerticalAlignment="Top" MinWidth="100"
+                  x:Name="FileTypeComboBox" />
 
-        <ListView Grid.Row="1" Grid.Column="1" ItemsSource="{Binding CurrentListForManagement}" Margin="5" />
+        <ListView Grid.Row="1" Grid.Column="1" ItemsSource="{Binding FileTypeExtensionsList, Mode=TwoWay}" Margin="5"
+                  x:Name="ExtensionsListView" />
 
         <Grid Grid.Row="2" Grid.ColumnSpan="2" VerticalAlignment="Bottom" Height="36">
             <Grid.ColumnDefinitions>
@@ -30,10 +33,15 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <TextBox  Grid.Column="0" HorizontalAlignment="Left" Margin="5" Width="150" />
+            <TextBox  Grid.Column="0" HorizontalAlignment="Left" Margin="5" Width="150"
+                      Text="{Binding ExtensionToAdd, Mode=TwoWay}" />
             <WrapPanel Grid.Column="1" HorizontalAlignment="Left" Margin="5">
-                <Button Content="Add Extension" Margin="0 0 5 0" />
-                <Button Content="Delete Extension" />
+                <Button Content="Add Extension" Margin="0 0 5 0"
+                        Command="{Binding AddExtensionCommand}"
+                        CommandParameter="{Binding SelectedValue, ElementName=FileTypeComboBox}" />
+                <Button Content="Delete Extension"
+                        Command="{Binding RemoveExtensionCommand}"
+                        CommandParameter="{Binding SelectedValue, ElementName=ExtensionsListView}" />
             </WrapPanel>
             <Button  Grid.Column="2" HorizontalAlignment="Right" Margin="5" Content="Back"
                      Command="{Binding AcceedSelectionControlCommand}" />

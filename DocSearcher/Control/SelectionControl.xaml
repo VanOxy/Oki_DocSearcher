@@ -42,11 +42,10 @@
                                 <CheckBox Content="{Binding Name}" Margin="15 5 0 5" />
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
-                        <!--<Button Content="Add Extension" Command="{Binding AddExtensionCommand}" CommandParameter="document" />-->
                     </ItemsControl>
                 </Expander>
 
-                <Expander Grid.Row="2"  Margin="1">
+                <Expander Grid.Row="2" Margin="1">
                     <Expander.Header>
                         <StackPanel Orientation="Horizontal">
                             <Image Source="../src/video.png" Height="16" Margin="5 0 0 0" />
@@ -64,7 +63,6 @@
                                 <CheckBox Content="{Binding Name}" Margin="15 5 0 5" />
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
-                        <!--<Button Content="Add Extension" Command="{Binding AddExtensionCommand}" CommandParameter="image" />-->
                     </ItemsControl>
                 </Expander>
 
@@ -86,7 +84,6 @@
                                 <CheckBox Content="{Binding Name}" Margin="15 5 0 5" />
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
-                        <!--<Button Content="Add Extension" Command="{Binding AddExtensionCommand}" CommandParameter="image" />-->
                     </ItemsControl>
                 </Expander>
 
@@ -108,7 +105,6 @@
                                 <CheckBox Content="{Binding Name}" Margin="15 5 0 5" />
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
-                        <!--<Button Content="Add Extension" Command="{Binding AddExtensionCommand}" CommandParameter="image" />-->
                     </ItemsControl>
                 </Expander>
             </StackPanel>

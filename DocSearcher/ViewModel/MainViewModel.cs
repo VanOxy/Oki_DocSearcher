@@ -4,6 +4,7 @@ using DocSearcher.Model;
 using DocSearcher.Utilities;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
+using GalaSoft.MvvmLight.Helpers;
 using GalaSoft.MvvmLight.Messaging;
 using Microsoft.Win32;
 using SQLite;
@@ -47,6 +48,8 @@ namespace DocSearcher.ViewModel
 
         public List<string> FileTypes { get; set; }
 
+        public ObservableCollection<string> FileTypeExtensionsList { get; set; }
+
         public ObservableCollection<Extension> ImageExtensions { get; set; }
 
         public ObservableCollection<Extension> MusicExtensions { get; set; }
@@ -65,6 +68,7 @@ namespace DocSearcher.ViewModel
 
         private void InitFileTypes()
         {
+            FileTypeExtensionsList = new ObservableCollection<string>();
             FileTypes = new List<string>();
             FileTypes.Add("Documents");
             FileTypes.Add("Video");
@@ -72,40 +76,18 @@ namespace DocSearcher.ViewModel
             FileTypes.Add("Music");
         }
 
-        private void InitExtensions(SQLiteConnection db)
+        private void UpdateManagementExtensionsList(ExtensionManagementFileTypeSelectedMessage message)
         {
-            if (!(db.Table<Extension>().Count() > 0))
+            var fileType = NormalizeFileTypeString(message.SelectedFileType);
+
+            using (var db = new SQLiteConnection(connectionString))
             {
-                db.Insert(new Extension()
+                var extensions = db.Table<Extension>().Where(file => file.Type.Equals(fileType)).ToList();
+                FileTypeExtensionsList.Clear();
+                foreach (var ext in extensions)
                 {
-                    Name = "jpg",
-                    Type = "image"
-                });
-                db.Insert(new Extension()
-                {
-                    Name = "png",
-                    Type = "image"
-                });
-                db.Insert(new Extension()
-                {
-                    Name = "gif",
-                    Type = "image"
-                });
-                db.Insert(new Extension()
-                {
-                    Name = "doc",
-                    Type = "document"
-                });
-                db.Insert(new Extension()
-                {
-                    Name = "mp3",
-                    Type = "music"
-                });
-                db.Insert(new Extension()
-                {
-                    Name = "flv",
-                    Type = "video"
-                });
+                    FileTypeExtensionsList.Add(ext.Name);
+                }
             }
         }
 
@@ -177,16 +159,22 @@ namespace DocSearcher.ViewModel
 
         #endregion FilesResearch
 
-        #region Commands
+        #region Commands & Realisation
 
         public RelayCommand ManageExtensionsCommand { get; set; }
 
         public RelayCommand AcceedSelectionControlCommand { get; set; }
 
+        public RelayCommand<string> AddExtensionCommand { get; set; }
+
+        public RelayCommand<string> RemoveExtensionCommand { get; set; }
+
         private void InitCommands()
         {
             ManageExtensionsCommand = new RelayCommand(ManageExtensions);
             AcceedSelectionControlCommand = new RelayCommand(AcceedSelectionControl);
+            AddExtensionCommand = new RelayCommand<string>(AddExtension);
+            RemoveExtensionCommand = new RelayCommand<string>(DeleteExtension);
         }
 
         private void AcceedSelectionControl()
@@ -199,7 +187,70 @@ namespace DocSearcher.ViewModel
             ActiveView = ExtensionsManagementControl;
         }
 
-        #endregion Commands
+        private void AddExtension(string str)
+        {
+            try
+            {
+                var extension = ExtensionToAdd;
+                if (String.IsNullOrEmpty(extension))
+                    return;
+
+                ExtensionToAdd = "";
+                var fileType = NormalizeFileTypeString(str);
+
+                // add to database
+                using (var db = new SQLiteConnection(connectionString))
+                {
+                    db.Insert(new Extension()
+                    {
+                        Name = extension,
+                        Type = fileType
+                    });
+                }
+
+                // add to the ListView
+                FileTypeExtensionsList.Add(extension);
+                RefreshExtensionLists();
+            }
+            catch { }
+        }
+
+        private void DeleteExtension(string selectedExtension)
+        {
+            if (String.IsNullOrEmpty(selectedExtension))
+                return;
+
+            // delete from DataBase
+            using (var db = new SQLiteConnection(connectionString))
+            {
+                var obj = db.Table<Extension>().Where(ext => ext.Name.Equals(selectedExtension)).First();
+                db.Delete<Extension>(obj.Id);
+            }
+
+            // refresh all Lists
+            RefreshExtensionLists();
+            FileTypeExtensionsList.Remove(selectedExtension);
+        }
+
+        #endregion Commands & Realisation
+
+        #region ExtensionsManagement
+
+        private string _extensionToAdd;
+
+        public string ExtensionToAdd
+        {
+            get { return _extensionToAdd; }
+            set
+            {
+                if (_extensionToAdd == value)
+                    return;
+                _extensionToAdd = value;
+                RaisePropertyChanged("ExtensionToAdd");
+            }
+        }
+
+        #endregion ExtensionsManagement
 
         private List<string> _extensions = new List<string>();
         private List<string> _paths = new List<string>();
@@ -209,13 +260,23 @@ namespace DocSearcher.ViewModel
         private long _totalSize = 0;
         private long _progress = 0;
         private string _scaningFilePath = "";
+        private string connectionString = "localDB.sqlite";
+
+        private void RegisterMessages()
+        {
+            Messenger.Default.Register<MainWindowUidMessage>(this, LoadControls);
+            Messenger.Default.Register<ExtensionManagementFileTypeSelectedMessage>
+                (this, UpdateManagementExtensionsList);
+        }
 
         public MainViewModel()
         {
-            Messenger.Default.Register<MainWindowUidMessage>(this, LoadControls);
+            RegisterMessages();
             InitCommands();
             InitExtensionCollections();
             InitFileTypes();
+            InitExtensions();
+            FillExtensionsListsFromDatabase();
 
             TotalSize = new DrivesExplorer().GetUsedSpace();
 
@@ -223,40 +284,6 @@ namespace DocSearcher.ViewModel
             //{
             //    StartScanning();
             //});
-
-            using (var db = new SQLiteConnection("localDB.sqlite"))
-            {
-                db.CreateTable<Extension>();
-
-                InitExtensions(db);
-
-                var extensions = db.Table<Extension>().ToList();
-
-                foreach (var ext in extensions)
-                {
-                    switch (ext.Type)
-                    {
-                        case "image":
-                            ImageExtensions.Add(ext);
-                            break;
-
-                        case "video":
-                            VideoExtensions.Add(ext);
-                            break;
-
-                        case "document":
-                            DocumentExtensions.Add(ext);
-                            break;
-
-                        case "music":
-                            MusicExtensions.Add(ext);
-                            break;
-
-                        default:
-                            break;
-                    }
-                }
-            }
         }
 
         private void LoadControls(MainWindowUidMessage obj)
@@ -324,5 +351,111 @@ namespace DocSearcher.ViewModel
             }
             catch { }
         }
+
+        #region Tools
+
+        private string NormalizeFileTypeString(string str)
+        {
+            var fileType = str.Trim().ToLower();
+
+            if (fileType.Equals("documents") || fileType.Equals("images"))
+                fileType = fileType.Remove(fileType.Length - 1);
+
+            return fileType;
+        }
+
+        /// <summary>
+        /// Fill the Database with hardcoded usual extensions.
+        /// </summary>
+        private void InitExtensions()
+        {
+            using (var db = new SQLiteConnection(connectionString))
+            {
+                db.CreateTable<Extension>();
+
+                if (!(db.Table<Extension>().Count() > 0))
+                {
+                    db.Insert(new Extension()
+                    {
+                        Name = "jpg",
+                        Type = "image"
+                    });
+                    db.Insert(new Extension()
+                    {
+                        Name = "png",
+                        Type = "image"
+                    });
+                    db.Insert(new Extension()
+                    {
+                        Name = "gif",
+                        Type = "image"
+                    });
+                    db.Insert(new Extension()
+                    {
+                        Name = "doc",
+                        Type = "document"
+                    });
+                    db.Insert(new Extension()
+                    {
+                        Name = "mp3",
+                        Type = "music"
+                    });
+                    db.Insert(new Extension()
+                    {
+                        Name = "flv",
+                        Type = "video"
+                    });
+                }
+            }
+        }
+
+        private void FillExtensionsListsFromDatabase()
+        {
+            using (var db = new SQLiteConnection(connectionString))
+            {
+                var extensions = db.Table<Extension>().ToList();
+
+                foreach (var ext in extensions)
+                {
+                    switch (ext.Type)
+                    {
+                        case "image":
+                            ImageExtensions.Add(ext);
+                            break;
+
+                        case "video":
+                            VideoExtensions.Add(ext);
+                            break;
+
+                        case "document":
+                            DocumentExtensions.Add(ext);
+                            break;
+
+                        case "music":
+                            MusicExtensions.Add(ext);
+                            break;
+
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
+
+        private void ClearExtensionsLists()
+        {
+            ImageExtensions.Clear();
+            VideoExtensions.Clear();
+            DocumentExtensions.Clear();
+            MusicExtensions.Clear();
+        }
+
+        private void RefreshExtensionLists()
+        {
+            ClearExtensionsLists();
+            FillExtensionsListsFromDatabase();
+        }
+
+        #endregion Tools
     }
 }

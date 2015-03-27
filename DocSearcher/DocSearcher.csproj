@@ -105,6 +105,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Message\ExtensionManagementFileTypeSelectedMessage.cs" />
     <Compile Include="Control\ExtensionsManagementControl.xaml.cs">
       <DependentUpon>ExtensionsManagementControl.xaml</DependentUpon>
     </Compile>
