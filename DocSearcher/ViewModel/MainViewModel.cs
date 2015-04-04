@@ -278,7 +278,7 @@ namespace DocSearcher.ViewModel
             InitExtensions();
             FillExtensionsListsFromDatabase();
 
-            TotalSize = new DrivesExplorer().GetUsedSpace();
+            TotalSize = DrivesExplorer.GetUsedSpace();
 
             //Task.Run(() =>
             //{

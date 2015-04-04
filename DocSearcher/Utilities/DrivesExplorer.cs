@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace DocSearcher.Utilities
 {
-    class DrivesExplorer
+    internal class DrivesExplorer
     {
         /// <summary>
         /// Function returns total amound of space ocuped by files on all drives.
         /// </summary>
         /// <returns></returns>
-        public long GetUsedSpace()
+        public static long GetUsedSpace()
         {
             long usedSpace = 0;
             DriveInfo[] drives = DriveInfo.GetDrives();

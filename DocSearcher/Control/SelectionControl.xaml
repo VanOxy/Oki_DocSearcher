@@ -60,7 +60,7 @@
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <CheckBox Content="{Binding Name}" Margin="15 5 0 5" />
+                                <CheckBox Content="{Binding Name}" IsChecked="{Binding Checked}" Margin="15 5 0 5" />
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
