@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Threading;
 
@@ -169,12 +170,15 @@ namespace DocSearcher.ViewModel
 
         public RelayCommand<string> RemoveExtensionCommand { get; set; }
 
+        public RelayCommand StartSearchCommand { get; set; }
+
         private void InitCommands()
         {
             ManageExtensionsCommand = new RelayCommand(ManageExtensions);
             AcceedSelectionControlCommand = new RelayCommand(AcceedSelectionControl);
             AddExtensionCommand = new RelayCommand<string>(AddExtension);
             RemoveExtensionCommand = new RelayCommand<string>(DeleteExtension);
+            StartSearchCommand = new RelayCommand(StartScanning);
         }
 
         private void AcceedSelectionControl()
@@ -300,16 +304,34 @@ namespace DocSearcher.ViewModel
 
         private void StartScanning()
         {
-            DriveInfo[] drives = DriveInfo.GetDrives();
+            // todo
+            // change view - ok
+            // adapt window size - ok
+            // get drives - doing... --> xaml
+            // get extensions
+            // start scan
+            // get statistics while scanning
 
-            foreach (DriveInfo drive in drives)
+            ActiveView = ResearchControl;
+            Messenger.Default.Send(new ChangeWindowSizeMessage("research"));
+
+            Task.Run(() =>
             {
-                if (drive.IsReady && drive.DriveType == DriveType.Fixed)
+                DriveInfo[] drives = DriveInfo.GetDrives();
+
+                foreach (DriveInfo drive in drives)
                 {
-                    ExploreDrive(drive.Name);
+                    if (drive.IsReady && drive.DriveType == DriveType.Fixed)
+                    {
+                        ExploreDrive(drive.Name);
+                    }
                 }
-            }
-            ScaningFilePath = "Done :)";
+            });
+
+            Messenger.Default.Send(new ChangeWindowSizeMessage("stat"));
+
+            // adapt window size
+            // :)
         }
 
         private void ExploreDrive(string driveName)

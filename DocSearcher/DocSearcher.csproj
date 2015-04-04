@@ -119,6 +119,7 @@
     <Compile Include="sqlite-net\SQLite.cs" />
     <Compile Include="sqlite-net\SQLiteAsync.cs" />
     <Compile Include="Utilities\DrivesExplorer.cs" />
+    <Compile Include="Message\ChangeWindowSizeMessage.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Compile Include="Message\MainWindowUidMessage.cs" />

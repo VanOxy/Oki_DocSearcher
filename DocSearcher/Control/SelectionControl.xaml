@@ -39,7 +39,7 @@
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <CheckBox Content="{Binding Name}" Margin="15 5 0 5" />
+                                <CheckBox Content="{Binding Name}" IsChecked="{Binding Checked}" Margin="15 5 0 5" />
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
@@ -81,7 +81,7 @@
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <CheckBox Content="{Binding Name}" Margin="15 5 0 5" />
+                                <CheckBox Content="{Binding Name}" IsChecked="{Binding Checked}" Margin="15 5 0 5" />
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
@@ -102,16 +102,19 @@
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <CheckBox Content="{Binding Name}" Margin="15 5 0 5" />
+                                <CheckBox Content="{Binding Name}" IsChecked="{Binding Checked}" Margin="15 5 0 5" />
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </Expander>
             </StackPanel>
 
-            <WrapPanel Grid.Row="2" Margin="0 0 0 5" VerticalAlignment="Bottom">
+            <WrapPanel Grid.Row="2" Grid.ColumnSpan="3" Margin="0 5 0 5" VerticalAlignment="Bottom">
                 <Button Content="Manage Extensions" Command="{Binding ManageExtensionsCommand}" />
             </WrapPanel>
+
+            <Button Grid.Row="2" Grid.Column="3" HorizontalAlignment="Right" Margin="0 5 20 5" VerticalAlignment="Bottom"
+                Content="Start" Command="{Binding StartSearchCommand}" />
         </Grid>
     </ScrollViewer>
 </UserControl>

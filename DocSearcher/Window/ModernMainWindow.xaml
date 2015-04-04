@@ -9,7 +9,7 @@
                   Title="Oki_DocSearcher"
                   Style="{StaticResource BlankWindow}"
                   Loaded="ModernWindow_Loaded"
-                  Width="600" Height="400"
+                  Width="600" Height="400" MinHeight="180"
                   DataContext="{Binding Source={StaticResource Locator}, Path=Main}">
 
     <Grid>
