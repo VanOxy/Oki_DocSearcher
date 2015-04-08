@@ -1,6 +1,5 @@
 ﻿using DocSearcher.Message;
 using GalaSoft.MvvmLight.Messaging;
-using System.Windows;
 using System.Windows.Controls;
 
 namespace DocSearcher.Control

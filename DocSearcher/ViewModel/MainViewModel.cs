@@ -45,6 +45,10 @@ namespace DocSearcher.ViewModel
 
         #endregion UserControlManagement
 
+        #region SelectionMode
+
+        private string connectionString = "localDB.sqlite";
+
         #region ArraysForExtensionsTypes
 
         public List<string> FileTypes { get; set; }
@@ -59,12 +63,15 @@ namespace DocSearcher.ViewModel
 
         public ObservableCollection<Extension> VideoExtensions { get; set; }
 
+        public ObservableCollection<Drive> Drives { get; set; }
+
         private void InitExtensionCollections()
         {
             ImageExtensions = new ObservableCollection<Extension>();
             MusicExtensions = new ObservableCollection<Extension>();
             DocumentExtensions = new ObservableCollection<Extension>();
             VideoExtensions = new ObservableCollection<Extension>();
+            Drives = new ObservableCollection<Drive>();
         }
 
         private void InitFileTypes()
@@ -93,72 +100,6 @@ namespace DocSearcher.ViewModel
         }
 
         #endregion ArraysForExtensionsTypes
-
-        #region FilesResearch
-
-        public int FilesFound
-        {
-            get { return _filesFound; }
-            private set
-            {
-                _filesFound = value;
-                RaisePropertyChanged("FilesFound");
-            }
-        }
-
-        public long TotalSize
-        {
-            get { return _totalSize; }
-            private set
-            {
-                _totalSize = value;
-                RaisePropertyChanged("TotalSize");
-            }
-        }
-
-        public long Progress
-        {
-            get { return _progress; }
-            private set
-            {
-                if (_progress != value)
-                {
-                    _progress = value;
-                    RaisePropertyChanged("Progress");
-                }
-            }
-        }
-
-        public int FilesScanned
-        {
-            get { return _filesScanned; }
-            private set
-            {
-                if (_filesScanned != value)
-                {
-                    _filesScanned = value;
-                    RaisePropertyChanged("FilesScanned");
-                }
-            }
-        }
-
-        public string ScaningFilePath
-        {
-            get
-            {
-                return _scaningFilePath;
-            }
-            private set
-            {
-                if (_scaningFilePath != value)
-                {
-                    _scaningFilePath = value;
-                    RaisePropertyChanged("ScaningFilePath");
-                }
-            }
-        }
-
-        #endregion FilesResearch
 
         #region Commands & Realisation
 
@@ -255,124 +196,6 @@ namespace DocSearcher.ViewModel
         }
 
         #endregion ExtensionsManagement
-
-        private List<string> _extensions = new List<string>();
-        private List<string> _paths = new List<string>();
-
-        private int _filesScanned = 0;
-        private int _filesFound = 0;
-        private long _totalSize = 0;
-        private long _progress = 0;
-        private string _scaningFilePath = "";
-        private string connectionString = "localDB.sqlite";
-
-        private void RegisterMessages()
-        {
-            Messenger.Default.Register<MainWindowUidMessage>(this, LoadControls);
-            Messenger.Default.Register<ExtensionManagementFileTypeSelectedMessage>
-                (this, UpdateManagementExtensionsList);
-        }
-
-        public MainViewModel()
-        {
-            RegisterMessages();
-            InitCommands();
-            InitExtensionCollections();
-            InitFileTypes();
-            InitExtensions();
-            FillExtensionsListsFromDatabase();
-
-            TotalSize = DrivesExplorer.GetUsedSpace();
-
-            //Task.Run(() =>
-            //{
-            //    StartScanning();
-            //});
-        }
-
-        private void LoadControls(MainWindowUidMessage obj)
-        {
-            Dispatcher.FromThread(obj.ThreadUid).Invoke(() =>
-            {
-                SelectionControl = new SelectionControl();
-                ResearchControl = new ResearchControl();
-                ExtensionsManagementControl = new ExtensionsManagementControl();
-            });
-
-            ActiveView = SelectionControl;
-        }
-
-        private void StartScanning()
-        {
-            // todo
-            // change view - ok
-            // adapt window size - ok
-            // get drives - doing... --> xaml
-            // get extensions
-            // start scan
-            // get statistics while scanning
-
-            ActiveView = ResearchControl;
-            Messenger.Default.Send(new ChangeWindowSizeMessage("research"));
-
-            Task.Run(() =>
-            {
-                DriveInfo[] drives = DriveInfo.GetDrives();
-
-                foreach (DriveInfo drive in drives)
-                {
-                    if (drive.IsReady && drive.DriveType == DriveType.Fixed)
-                    {
-                        ExploreDrive(drive.Name);
-                    }
-                }
-            });
-
-            Messenger.Default.Send(new ChangeWindowSizeMessage("stat"));
-
-            // adapt window size
-            // :)
-        }
-
-        private void ExploreDrive(string driveName)
-        {
-            DirectoryInfo dir_info = new DirectoryInfo(driveName);
-            SearchFiles(dir_info, _paths);
-        }
-
-        /// <summary>
-        /// Take into parameters directory name and List to fill.
-        /// Fill the last one with paths of found files.
-        /// </summary>
-        /// <param name="dir_info"></param>
-        /// <param name="file_list"></param>
-        private void SearchFiles(DirectoryInfo dir_info, List<string> file_list)
-        {
-            try
-            {
-                foreach (DirectoryInfo subdir_info in dir_info.GetDirectories())
-                {
-                    SearchFiles(subdir_info, file_list);
-                }
-            }
-            catch { }
-            try
-            {
-                foreach (FileInfo file_info in dir_info.GetFiles())
-                {
-                    if (_extensions.Any(ext => ext == file_info.Extension))
-                    {
-                        file_list.Add(file_info.FullName);
-                        FilesFound++;
-                    }
-
-                    ScaningFilePath = file_info.FullName;
-                    FilesScanned++;
-                    Progress += file_info.Length;
-                }
-            }
-            catch { }
-        }
 
         #region Tools
 
@@ -478,6 +301,194 @@ namespace DocSearcher.ViewModel
             FillExtensionsListsFromDatabase();
         }
 
+        private void RegisterMessages()
+        {
+            Messenger.Default.Register<MainWindowUidMessage>(this, LoadControls);
+            Messenger.Default.Register<ExtensionManagementFileTypeSelectedMessage>
+                (this, UpdateManagementExtensionsList);
+        }
+
+        private void LoadControls(MainWindowUidMessage obj)
+        {
+            Dispatcher.FromThread(obj.ThreadUid).Invoke(() =>
+            {
+                SelectionControl = new SelectionControl();
+                ResearchControl = new ResearchControl();
+                ExtensionsManagementControl = new ExtensionsManagementControl();
+            });
+
+            ActiveView = SelectionControl;
+        }
+
         #endregion Tools
+
+        #endregion SelectionMode
+
+        #region FilesResearch
+
+        private List<string> _extensions = new List<string>();
+        private List<string> _paths = new List<string>();
+
+        private int _filesFound = 0;
+
+        public int FilesFound
+        {
+            get { return _filesFound; }
+            private set
+            {
+                _filesFound = value;
+                RaisePropertyChanged("FilesFound");
+            }
+        }
+
+        private long _totalSize = 0;
+
+        public long TotalSize
+        {
+            get { return _totalSize; }
+            private set
+            {
+                _totalSize = value;
+                RaisePropertyChanged("TotalSize");
+            }
+        }
+
+        private long _progress = 0;
+
+        public long Progress
+        {
+            get { return _progress; }
+            private set
+            {
+                if (_progress != value)
+                {
+                    _progress = value;
+                    RaisePropertyChanged("Progress");
+                }
+            }
+        }
+
+        private int _filesScanned = 0;
+
+        public int FilesScanned
+        {
+            get { return _filesScanned; }
+            private set
+            {
+                if (_filesScanned != value)
+                {
+                    _filesScanned = value;
+                    RaisePropertyChanged("FilesScanned");
+                }
+            }
+        }
+
+        private string _scaningFilePath = "";
+
+        public string ScaningFilePath
+        {
+            get
+            {
+                return _scaningFilePath;
+            }
+            private set
+            {
+                if (_scaningFilePath != value)
+                {
+                    _scaningFilePath = value;
+                    RaisePropertyChanged("ScaningFilePath");
+                }
+            }
+        }
+
+        #endregion FilesResearch
+
+        public MainViewModel()
+        {
+            RegisterMessages();
+            InitCommands();
+            InitExtensionCollections();
+            InitFileTypes();
+            InitExtensions();
+            FillExtensionsListsFromDatabase();
+
+            TotalSize = DrivesExplorer.GetUsedSpace();
+            Drives = DrivesExplorer.GetDrives();
+        }
+
+        private void StartScanning()
+        {
+            // todo
+            // change view - ok
+            // adapt window size - ok
+            // get drives - ok
+            // get extensions
+            // start scan
+            // get statistics while scanning
+
+            ActiveView = ResearchControl;
+            Messenger.Default.Send(new ChangeWindowSizeMessage("research"));
+
+            Task.Run(() =>
+            {
+                // change the code here, see above
+                DriveInfo[] drives = DriveInfo.GetDrives();
+
+                foreach (DriveInfo drive in drives)
+                {
+                    if (drive.IsReady)
+                    {
+                        //ExploreDrive(drive.Name);
+                    }
+                }
+            });
+
+            // todo --> create Modern Charts page, bindings, adapt size
+            //ActiveView = GraphicsControl;
+            Messenger.Default.Send(new ChangeWindowSizeMessage("stat"));
+
+            // adapt window size
+            // :)
+        }
+
+        private void ExploreDrive(string driveName)
+        {
+            DirectoryInfo dir_info = new DirectoryInfo(driveName);
+            SearchFiles(dir_info, _paths);
+        }
+
+        /// <summary>
+        /// Take into parameters directory name and List to fill.
+        /// Fill the last one with paths of found files.
+        /// </summary>
+        /// <param name="dir_info"></param>
+        /// <param name="file_list"></param>
+        private void SearchFiles(DirectoryInfo dir_info, List<string> file_list)
+        {
+            try
+            {
+                foreach (DirectoryInfo subdir_info in dir_info.GetDirectories())
+                {
+                    SearchFiles(subdir_info, file_list);
+                }
+            }
+            catch { }
+            try
+            {
+                foreach (FileInfo file_info in dir_info.GetFiles())
+                {
+                    if (_extensions.Any(ext => ext == file_info.Extension))
+                    {
+                        file_list.Add(file_info.FullName);
+                        FilesFound++;
+                    }
+
+                    ScaningFilePath = file_info.FullName;
+                    FilesScanned++;
+                    Progress += file_info.Length;
+                }
+            }
+            catch { }
+        }
     }
 }
