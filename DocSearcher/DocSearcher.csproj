@@ -70,6 +70,9 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AvalonLibrary">
+      <HintPath>..\packages\AvalonLibrary.2.2.0.0\lib\net40\AvalonLibrary.dll</HintPath>
+    </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\EntityFramework.6.1.2\lib\net45\EntityFramework.dll</HintPath>
@@ -135,6 +138,7 @@
     <Compile Include="sqlite-net\SQLiteAsync.cs" />
     <Compile Include="Utilities\DrivesExplorer.cs" />
     <Compile Include="Message\ChangeWindowSizeMessage.cs" />
+    <Compile Include="Message\ClearScaningFilePathMessage.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Compile Include="Message\MainWindowUidMessage.cs" />

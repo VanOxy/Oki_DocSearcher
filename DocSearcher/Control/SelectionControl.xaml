@@ -15,8 +15,8 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition MinWidth="150" Width="*" />
-                <ColumnDefinition MaxWidth="200" />
+                <ColumnDefinition MinWidth="250" Width="*" />
+                <ColumnDefinition MinWidth="200" MaxWidth="250" />
             </Grid.ColumnDefinitions>
 
             <TextBlock Text="Research Parameters" Grid.Row="0"
@@ -28,7 +28,7 @@
             <TextBlock Text="Drives :" Grid.Row="1" Grid.Column="1"
                        FontWeight="Bold" FontSize="12" Margin="0 0 0 10" />
 
-            <StackPanel Grid.Row="2" Grid.ColumnSpan="2">
+            <StackPanel Grid.Row="2">
 
                 <Expander Grid.Row="1" Margin="1">
                     <Expander.Header>
@@ -40,7 +40,7 @@
                     <ItemsControl ItemsSource="{Binding DocumentExtensions}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal" />
+                                <WrapPanel />
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
@@ -61,7 +61,7 @@
                     <ItemsControl ItemsSource="{Binding VideoExtensions}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal" />
+                                <WrapPanel />
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
@@ -82,7 +82,7 @@
                     <ItemsControl ItemsSource="{Binding ImageExtensions}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal" />
+                                <WrapPanel />
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
@@ -103,7 +103,7 @@
                     <ItemsControl ItemsSource="{Binding MusicExtensions}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal" />
+                                <WrapPanel />
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
@@ -116,6 +116,11 @@
             </StackPanel>
 
             <Grid Grid.Row="2" Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+
                 <ItemsControl ItemsSource="{Binding Drives}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -124,10 +129,20 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <CheckBox Content="{Binding NameToDisplay}"  IsChecked="{Binding Checked}" Margin="0 5 0 5" />
+                            <CheckBox Content="{Binding NameToDisplay}"  IsChecked="{Binding Checked, Mode=TwoWay}" Margin="0 5 0 5" />
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
+
+                <StackPanel Grid.Row="1" Margin="0 10 0 0">
+                    <TextBlock Text="Folder :" Grid.Row="0"
+                       FontWeight="Bold" FontSize="12" Margin="0 0 0 10" />
+                    <StackPanel>
+                        <Button Content="Select folder" HorizontalAlignment="Left" Command="{Binding SelectFolderCommand}" />
+                        <TextBlock Text="{Binding ScaningFilePath}" Margin="0 5 5 5"
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
+                </StackPanel>
             </Grid>
 
             <WrapPanel Grid.Row="3" Grid.ColumnSpan="2" Margin="0 5 0 5" VerticalAlignment="Bottom">

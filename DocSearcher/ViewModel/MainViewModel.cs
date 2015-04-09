@@ -1,12 +1,11 @@
+using Avalon.Windows.Dialogs;
 using DocSearcher.Control;
 using DocSearcher.Message;
 using DocSearcher.Model;
 using DocSearcher.Utilities;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
-using GalaSoft.MvvmLight.Helpers;
 using GalaSoft.MvvmLight.Messaging;
-using Microsoft.Win32;
 using SQLite;
 using System;
 using System.Collections.Generic;
@@ -111,6 +110,8 @@ namespace DocSearcher.ViewModel
 
         public RelayCommand<string> RemoveExtensionCommand { get; set; }
 
+        public RelayCommand SelectFolderCommand { get; set; }
+
         public RelayCommand StartSearchCommand { get; set; }
 
         private void InitCommands()
@@ -119,6 +120,7 @@ namespace DocSearcher.ViewModel
             AcceedSelectionControlCommand = new RelayCommand(AcceedSelectionControl);
             AddExtensionCommand = new RelayCommand<string>(AddExtension);
             RemoveExtensionCommand = new RelayCommand<string>(DeleteExtension);
+            SelectFolderCommand = new RelayCommand(SelectFolder);
             StartSearchCommand = new RelayCommand(StartScanning);
         }
 
@@ -175,6 +177,23 @@ namespace DocSearcher.ViewModel
             // refresh all Lists
             RefreshExtensionLists();
             FileTypeExtensionsList.Remove(selectedExtension);
+        }
+
+        private void SelectFolder()
+        {
+            var dialog = new FolderBrowserDialog();
+            dialog.BrowseFiles = false;
+
+            // if folder selected
+            if ((bool)dialog.ShowDialog())
+            {
+                // clear selected drives
+                foreach (var item in Drives)
+                    item.Checked = false;
+
+                // attribute path to the
+                ScaningFilePath = dialog.SelectedPath;
+            }
         }
 
         #endregion Commands & Realisation
@@ -306,6 +325,12 @@ namespace DocSearcher.ViewModel
             Messenger.Default.Register<MainWindowUidMessage>(this, LoadControls);
             Messenger.Default.Register<ExtensionManagementFileTypeSelectedMessage>
                 (this, UpdateManagementExtensionsList);
+            Messenger.Default.Register<ClearScaningFilePathMessage>(this, ClearScaningFilePath);
+        }
+
+        private void ClearScaningFilePath(Message.ClearScaningFilePathMessage obj)
+        {
+            ScaningFilePath = "";
         }
 
         private void LoadControls(MainWindowUidMessage obj)
@@ -422,6 +447,7 @@ namespace DocSearcher.ViewModel
             // change view - ok
             // adapt window size - ok
             // get drives - ok
+            // get folder - ok
             // get extensions
             // start scan
             // get statistics while scanning
@@ -429,18 +455,17 @@ namespace DocSearcher.ViewModel
             ActiveView = ResearchControl;
             Messenger.Default.Send(new ChangeWindowSizeMessage("research"));
 
+            // get space for the progressBar
+            // start scan - doing...
             Task.Run(() =>
             {
                 // change the code here, see above
-                DriveInfo[] drives = DriveInfo.GetDrives();
-
-                foreach (DriveInfo drive in drives)
+                foreach (var drive in Drives)
                 {
-                    if (drive.IsReady)
-                    {
-                        //ExploreDrive(drive.Name);
-                    }
+                    if (drive.Checked)
+                        ExploreDrive(drive.Name);
                 }
+                ScaningFilePath = "Done.. :)";
             });
 
             // todo --> create Modern Charts page, bindings, adapt size
@@ -490,5 +515,7 @@ namespace DocSearcher.ViewModel
             }
             catch { }
         }
+
+        public object ClearScaningFilePathMessage { get; set; }
     }
 }
