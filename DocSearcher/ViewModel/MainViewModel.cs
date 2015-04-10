@@ -13,6 +13,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 
@@ -192,7 +193,7 @@ namespace DocSearcher.ViewModel
                     item.Checked = false;
 
                 // attribute path to the
-                ScaningFilePath = dialog.SelectedPath;
+                ScanningFilePath = dialog.SelectedPath;
             }
         }
 
@@ -330,7 +331,7 @@ namespace DocSearcher.ViewModel
 
         private void ClearScaningFilePath(Message.ClearScaningFilePathMessage obj)
         {
-            ScaningFilePath = "";
+            ScanningFilePath = "";
         }
 
         private void LoadControls(MainWindowUidMessage obj)
@@ -368,7 +369,7 @@ namespace DocSearcher.ViewModel
 
         private long _totalSize = 0;
 
-        public long TotalSize
+        public long TotalSizeToScan
         {
             get { return _totalSize; }
             private set
@@ -408,78 +409,83 @@ namespace DocSearcher.ViewModel
             }
         }
 
-        private string _scaningFilePath = "";
+        private string _scanningFilePath = "";
 
-        public string ScaningFilePath
+        public string ScanningFilePath
         {
             get
             {
-                return _scaningFilePath;
+                return _scanningFilePath;
             }
             private set
             {
-                if (_scaningFilePath != value)
+                if (_scanningFilePath != value)
                 {
-                    _scaningFilePath = value;
-                    RaisePropertyChanged("ScaningFilePath");
+                    _scanningFilePath = value;
+                    RaisePropertyChanged("ScanningFilePath");
                 }
             }
-        }
-
-        #endregion FilesResearch
-
-        public MainViewModel()
-        {
-            RegisterMessages();
-            InitCommands();
-            InitExtensionCollections();
-            InitFileTypes();
-            InitExtensions();
-            FillExtensionsListsFromDatabase();
-
-            TotalSize = DrivesExplorer.GetUsedSpace();
-            Drives = DrivesExplorer.GetDrives();
         }
 
         private void StartScanning()
         {
-            // todo
-            // change view - ok
-            // adapt window size - ok
-            // get drives - ok
-            // get folder - ok
-            // get extensions
-            // start scan
-            // get statistics while scanning
+            // check for extensions
+            GetSelectedExtensions();
+            if (_extensions.Count == 0)
+            {
+                MessageBox.Show("You did not select any extension.\nPlease, select one extension at least.");
+                return;
+            }
+
+            // check for drives or folder
+            var result = CheckFolderSelection();
+            if (result == false)
+            {
+                MessageBox.Show("You did not select any drive/dirrectory where research should be performed.\n" +
+                                "Please, select at least one drive or folder.");
+                return;
+            }
 
             ActiveView = ResearchControl;
             Messenger.Default.Send(new ChangeWindowSizeMessage("research"));
+            // here see where the message is sent => addapt window size and resize mode
 
-            // get space for the progressBar
-            // start scan - doing...
-            Task.Run(() =>
+            // if drives are selected
+            if (ScanningFilePath == "")
             {
-                // change the code here, see above
-                foreach (var drive in Drives)
-                {
-                    if (drive.Checked)
-                        ExploreDrive(drive.Name);
-                }
-                ScaningFilePath = "Done.. :)";
-            });
+                TotalSizeToScan = DrivesExplorer.GetUsedSpaceByDrives(Drives);
 
+                Task.Run(() =>
+                {
+                    foreach (var drive in Drives)
+                    {
+                        if (drive.Checked)
+                            SearchFiles(new DirectoryInfo(drive.Name), _paths);
+                    }
+                    ScanningFilePath = "Done.. :)";
+                });
+            }
+            // if just folder selected
+            else
+            {
+                TotalSizeToScan = DrivesExplorer.GetUsedSpaceByFolder(ScanningFilePath);
+
+                Task.Run(() =>
+                {
+                    // change the code here, see above
+                    foreach (var drive in Drives)
+                    {
+                        if (drive.Checked)
+                            SearchFiles(new DirectoryInfo(drive.Name), _paths);
+                    }
+                    ScanningFilePath = "Done.. :)";
+                });
+            }
             // todo --> create Modern Charts page, bindings, adapt size
             //ActiveView = GraphicsControl;
             Messenger.Default.Send(new ChangeWindowSizeMessage("stat"));
-
             // adapt window size
             // :)
-        }
-
-        private void ExploreDrive(string driveName)
-        {
-            DirectoryInfo dir_info = new DirectoryInfo(driveName);
-            SearchFiles(dir_info, _paths);
         }
 
         /// <summary>
@@ -492,7 +498,7 @@ namespace DocSearcher.ViewModel
         {
             try
             {
-                foreach (DirectoryInfo subdir_info in dir_info.GetDirectories())
+                foreach (var subdir_info in dir_info.GetDirectories())
                 {
                     SearchFiles(subdir_info, file_list);
                 }
@@ -508,7 +514,7 @@ namespace DocSearcher.ViewModel
                         FilesFound++;
                     }
 
-                    ScaningFilePath = file_info.FullName;
+                    ScanningFilePath = file_info.FullName;
                     FilesScanned++;
                     Progress += file_info.Length;
                 }
@@ -516,6 +522,53 @@ namespace DocSearcher.ViewModel
             catch { }
         }
 
-        public object ClearScaningFilePathMessage { get; set; }
+        #region Tools
+
+        private void GetSelectedExtensions()
+        {
+            CheckExtensions(ImageExtensions);
+            CheckExtensions(MusicExtensions);
+            CheckExtensions(DocumentExtensions);
+            CheckExtensions(VideoExtensions);
+        }
+
+        private void CheckExtensions(ObservableCollection<Extension> list)
+        {
+            foreach (var item in list)
+                if (item.Checked)
+                    _extensions.Add(item.Name);
+        }
+
+        private bool CheckFolderSelection()
+        {
+            bool flag = false;
+
+            foreach (var item in Drives)
+            {
+                if (item.Checked)
+                    flag = true;
+            }
+
+            if (ScanningFilePath == "" && flag == false)
+                return false;
+
+            return true;
+        }
+
+        #endregion Tools
+
+        #endregion FilesResearch
+
+        public MainViewModel()
+        {
+            RegisterMessages();
+            InitCommands();
+            InitExtensionCollections();
+            InitFileTypes();
+            InitExtensions();
+            FillExtensionsListsFromDatabase();
+
+            Drives = DrivesExplorer.GetDrives();
+        }
     }
 }

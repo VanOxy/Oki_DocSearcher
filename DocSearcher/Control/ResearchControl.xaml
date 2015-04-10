@@ -37,6 +37,6 @@
                      Maximum="{Binding TotalSize}" Minimum="0" Value="{Binding Progress}" />
 
         <Label Grid.Row="3" Margin="10,0,0,0" Grid.ColumnSpan="3" VerticalAlignment="Center"
-               Content="{Binding ScaningFilePath}" />
+               Content="{Binding ScanningFilePath}" />
     </Grid>
 </UserControl>

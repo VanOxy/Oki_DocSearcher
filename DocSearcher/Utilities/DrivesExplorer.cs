@@ -12,22 +12,45 @@ namespace DocSearcher.Utilities
     internal class DrivesExplorer
     {
         /// <summary>
-        /// Function returns total amound of space ocuped by files on all drives.
+        /// Returns total amount of space occupied by files on drives
+        /// passed into parameter as an collection.
         /// </summary>
+        /// <param name="drives"></param>
         /// <returns></returns>
-        public static long GetUsedSpace()
+        public static long GetUsedSpaceByDrives(Collection<Drive> drives)
         {
             long usedSpace = 0;
-            DriveInfo[] drives = DriveInfo.GetDrives();
+            DriveInfo[] allDrivesInfoCollection = DriveInfo.GetDrives();
 
-            foreach (var drive in drives)
+            var driveNamesCollection = (from drive in drives
+                                        where drive.Checked
+                                        select drive.Name).ToList();
+
+            var neededDrivesInfoCollection = (from drive in allDrivesInfoCollection
+                                              where driveNamesCollection.Contains(drive.Name)
+                                              select drive).ToList();
+
+            foreach (var drive in neededDrivesInfoCollection)
             {
-                if (drive.IsReady && drive.DriveType == DriveType.Fixed)
-                {
-                    usedSpace += drive.TotalSize - drive.TotalFreeSpace;
-                }
+                usedSpace += drive.TotalSize - drive.TotalFreeSpace;
             }
+
             return usedSpace;
+        }
+
+        public static long GetUsedSpaceByFolder(string path)
+        {
+            string[] a = Directory.GetFiles(path, "*.*", SearchOption.AllDirectories);
+
+            // Calculate total bytes of all files in a loop.
+            long b = 0;
+            foreach (string name in a)
+            {
+                // Use FileInfo to get length of each file.
+                FileInfo info = new FileInfo(name);
+                b += info.Length;
+            }
+            return b;
         }
 
         public static ObservableCollection<Drive> GetDrives()
