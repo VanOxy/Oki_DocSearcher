@@ -19,7 +19,7 @@
             <RowDefinition />
         </Grid.RowDefinitions>
 
-        <TextBlock Text="Research Parameters" Grid.Row="0"
+        <TextBlock Text="Research in progress..." Grid.Row="0"
                        FontWeight="Bold" FontSize="14" Margin="-5 0 0 10" />
 
         <Label Grid.Row="1" Content="Files scanned" Margin="10,0,0,0" VerticalAlignment="Center" />

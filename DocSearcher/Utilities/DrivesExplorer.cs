@@ -11,13 +11,15 @@ namespace DocSearcher.Utilities
 {
     internal class DrivesExplorer
     {
+        //public static long Space { get; set; }
+
         /// <summary>
         /// Returns total amount of space occupied by files on drives
         /// passed into parameter as an collection.
         /// </summary>
         /// <param name="drives"></param>
         /// <returns></returns>
-        public static long GetUsedSpaceByDrives(Collection<Drive> drives)
+        public static long GetUsedSpace_Drives(Collection<Drive> drives)
         {
             long usedSpace = 0;
             DriveInfo[] allDrivesInfoCollection = DriveInfo.GetDrives();
@@ -38,20 +40,49 @@ namespace DocSearcher.Utilities
             return usedSpace;
         }
 
-        public static long GetUsedSpaceByFolder(string path)
+        public static long GetSpace_Folder(string path)
         {
-            string[] a = Directory.GetFiles(path, "*.*", SearchOption.AllDirectories);
-
-            // Calculate total bytes of all files in a loop.
-            long b = 0;
-            foreach (string name in a)
+            long space = 0;
+            try
             {
-                // Use FileInfo to get length of each file.
-                FileInfo info = new FileInfo(name);
-                b += info.Length;
+                string[] a = Directory.GetFiles(path, "*.*", SearchOption.AllDirectories);
+
+                foreach (string name in a)
+                {
+                    FileInfo info = new FileInfo(name);
+                    space += info.Length;
+                }
             }
-            return b;
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return -1;
+            }
+
+            return space;
+
+            //Space = 0;
+            //RecursiveFunction(path);
         }
+
+        //private static void RecursiveFunction(string path)
+        //{
+        //    try
+        //    {
+        //        var directories = new DirectoryInfo(path).GetDirectories();
+        //        foreach (DirectoryInfo subdirInfo in directories)
+        //            RecursiveFunction(subdirInfo.FullName);
+        //    }
+        //    catch { }
+
+        //    try
+        //    {
+        //        var files = new DirectoryInfo(path).GetFiles();
+        //        foreach (FileInfo fileInfo in files)
+        //            Space += fileInfo.Length;
+        //    }
+        //    catch { }
+        //}
 
         public static ObservableCollection<Drive> GetDrives()
         {

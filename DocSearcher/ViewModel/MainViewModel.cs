@@ -367,15 +367,15 @@ namespace DocSearcher.ViewModel
             }
         }
 
-        private long _totalSize = 0;
+        private long _totalSizeToScan = 0;
 
         public long TotalSizeToScan
         {
-            get { return _totalSize; }
+            get { return _totalSizeToScan; }
             private set
             {
-                _totalSize = value;
-                RaisePropertyChanged("TotalSize");
+                _totalSizeToScan = value;
+                RaisePropertyChanged("TotalSizeToScan");
             }
         }
 
@@ -453,7 +453,7 @@ namespace DocSearcher.ViewModel
             // if drives are selected
             if (ScanningFilePath == "")
             {
-                TotalSizeToScan = DrivesExplorer.GetUsedSpaceByDrives(Drives);
+                TotalSizeToScan = DrivesExplorer.GetUsedSpace_Drives(Drives);
 
                 Task.Run(() =>
                 {
@@ -468,7 +468,15 @@ namespace DocSearcher.ViewModel
             // if just folder selected
             else
             {
-                TotalSizeToScan = DrivesExplorer.GetUsedSpaceByFolder(ScanningFilePath);
+                ScanningFilePath = "Working...";
+                TotalSizeToScan = DrivesExplorer.GetSpace_Folder(ScanningFilePath);
+                if (TotalSizeToScan < 0)
+                {
+                    MessageBox.Show("In order to perform research into selected directory you need to launch application with administrator privileges.\n" +
+                                    "Please restart the application as administrator.");
+                    ScanningFilePath = "Error...!";
+                    return;
+                }
 
                 Task.Run(() =>
                 {
