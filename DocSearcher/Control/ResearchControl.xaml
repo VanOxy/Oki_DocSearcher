@@ -34,7 +34,7 @@
         <Label Content="Progress" Grid.Row="2" Margin="10,0,0,0" VerticalAlignment="Center" />
         <ProgressBar Grid.ColumnSpan="3" Grid.Row="2"
                      Height="18" Margin="80,0,10,0" VerticalAlignment="Center"
-                     Maximum="{Binding TotalSize}" Minimum="0" Value="{Binding Progress}" />
+                     Maximum="{Binding TotalSizeToScan}" Minimum="0" Value="{Binding Progress}" />
 
         <Label Grid.Row="3" Margin="10,0,0,0" Grid.ColumnSpan="3" VerticalAlignment="Center"
                Content="{Binding ScanningFilePath}" />

@@ -10,6 +10,7 @@ namespace DocSearcher.View
     {
         public ModernMainWindow()
         {
+            this.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterOwner;
             InitializeComponent();
 
             Messenger.Default.Register<ChangeWindowSizeMessage>(this, ChangeWindowSize);
@@ -26,15 +27,14 @@ namespace DocSearcher.View
                 case "stat":
                     AdaptWindowForGraphicsMode();
                     break;
-
-                default:
-                    break;
             }
         }
 
         private void AdaptWindowForGraphicsMode()
         {
-            // adaptive size mode...
+            this.Height = SystemParameters.PrimaryScreenHeight * 0.85;
+            this.Width = SystemParameters.PrimaryScreenWidth * 0.85;
+            CenterWindowOnScreen();
             this.ResizeMode = System.Windows.ResizeMode.CanResizeWithGrip;
         }
 
@@ -48,6 +48,16 @@ namespace DocSearcher.View
         {
             Messenger.Default.Send(new MainWindowUidMessage(
                 Thread.CurrentThread));
+        }
+
+        private void CenterWindowOnScreen()
+        {
+            double screenWidth = System.Windows.SystemParameters.PrimaryScreenWidth;
+            double screenHeight = System.Windows.SystemParameters.PrimaryScreenHeight;
+            double windowWidth = this.Width;
+            double windowHeight = this.Height;
+            this.Left = (screenWidth / 2) - (windowWidth / 2);
+            this.Top = (screenHeight / 2) - (windowHeight / 2);
         }
     }
 }

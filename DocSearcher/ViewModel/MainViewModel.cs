@@ -427,7 +427,7 @@ namespace DocSearcher.ViewModel
             }
         }
 
-        private void StartScanning()
+        private async void StartScanning()
         {
             // check for extensions
             GetSelectedExtensions();
@@ -448,14 +448,13 @@ namespace DocSearcher.ViewModel
 
             ActiveView = ResearchControl;
             Messenger.Default.Send(new ChangeWindowSizeMessage("research"));
-            // here see where the message is sent => addapt window size and resize mode
 
             // if drives are selected
             if (ScanningFilePath == "")
             {
                 TotalSizeToScan = DrivesExplorer.GetUsedSpace_Drives(Drives);
 
-                Task.Run(() =>
+                await Task.Run(() =>
                 {
                     foreach (var drive in Drives)
                     {
@@ -468,8 +467,9 @@ namespace DocSearcher.ViewModel
             // if just folder selected
             else
             {
-                ScanningFilePath = "Working...";
                 TotalSizeToScan = DrivesExplorer.GetSpace_Folder(ScanningFilePath);
+                ScanningFilePath = "Working...";
+
                 if (TotalSizeToScan < 0)
                 {
                     MessageBox.Show("In order to perform research into selected directory you need to launch application with administrator privileges.\n" +
@@ -478,7 +478,7 @@ namespace DocSearcher.ViewModel
                     return;
                 }
 
-                Task.Run(() =>
+                await Task.Run(() =>
                 {
                     // change the code here, see above
                     foreach (var drive in Drives)
@@ -491,9 +491,9 @@ namespace DocSearcher.ViewModel
             }
             // todo --> create Modern Charts page, bindings, adapt size
             //ActiveView = GraphicsControl;
-            Messenger.Default.Send(new ChangeWindowSizeMessage("stat"));
+
             // adapt window size
-            // :)
+            Messenger.Default.Send(new ChangeWindowSizeMessage("stat"));
         }
 
         /// <summary>
@@ -544,7 +544,7 @@ namespace DocSearcher.ViewModel
         {
             foreach (var item in list)
                 if (item.Checked)
-                    _extensions.Add(item.Name);
+                    _extensions.Add("." + item.Name);
         }
 
         private bool CheckFolderSelection()
