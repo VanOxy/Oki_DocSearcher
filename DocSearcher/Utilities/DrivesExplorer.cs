@@ -5,13 +5,14 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DocSearcher.Utilities
 {
     internal class DrivesExplorer
     {
-        //public static long Space { get; set; }
+        private static long _spaceOccupiedByFolder;
 
         /// <summary>
         /// Returns total amount of space occupied by files on drives
@@ -42,47 +43,29 @@ namespace DocSearcher.Utilities
 
         public static long GetSpace_Folder(string path)
         {
-            long space = 0;
-            try
-            {
-                string[] a = Directory.GetFiles(path, "*.*", SearchOption.AllDirectories);
+            _spaceOccupiedByFolder = 0;
 
-                foreach (string name in a)
-                {
-                    FileInfo info = new FileInfo(name);
-                    space += info.Length;
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return -1;
-            }
+            RecursiveSearchFilesIntoDirectory(new DirectoryInfo(path));
 
-            return space;
-
-            //Space = 0;
-            //RecursiveFunction(path);
+            return _spaceOccupiedByFolder;
         }
 
-        //private static void RecursiveFunction(string path)
-        //{
-        //    try
-        //    {
-        //        var directories = new DirectoryInfo(path).GetDirectories();
-        //        foreach (DirectoryInfo subdirInfo in directories)
-        //            RecursiveFunction(subdirInfo.FullName);
-        //    }
-        //    catch { }
+        private static void RecursiveSearchFilesIntoDirectory(DirectoryInfo dir_info)
+        {
+            try
+            {
+                foreach (var subdir_info in dir_info.GetDirectories())
+                    RecursiveSearchFilesIntoDirectory(subdir_info);
+            }
+            catch { }
 
-        //    try
-        //    {
-        //        var files = new DirectoryInfo(path).GetFiles();
-        //        foreach (FileInfo fileInfo in files)
-        //            Space += fileInfo.Length;
-        //    }
-        //    catch { }
-        //}
+            try
+            {
+                foreach (FileInfo file_info in dir_info.GetFiles())
+                    _spaceOccupiedByFolder += file_info.Length;
+            }
+            catch { }
+        }
 
         public static ObservableCollection<Drive> GetDrives()
         {

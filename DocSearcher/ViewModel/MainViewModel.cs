@@ -367,7 +367,7 @@ namespace DocSearcher.ViewModel
             }
         }
 
-        private long _totalSizeToScan = 0;
+        private long _totalSizeToScan = 10;
 
         public long TotalSizeToScan
         {
@@ -459,7 +459,7 @@ namespace DocSearcher.ViewModel
                     foreach (var drive in Drives)
                     {
                         if (drive.Checked)
-                            SearchFiles(new DirectoryInfo(drive.Name), _paths);
+                            RecursiveSearchFilesIntoDirectory(new DirectoryInfo(drive.Name));
                     }
                     ScanningFilePath = "Done.. :)";
                 });
@@ -467,8 +467,13 @@ namespace DocSearcher.ViewModel
             // if just folder selected
             else
             {
-                TotalSizeToScan = DrivesExplorer.GetSpace_Folder(ScanningFilePath);
-                ScanningFilePath = "Working...";
+                var folder = ScanningFilePath;
+
+                await Task.Run(() =>
+                {
+                    ScanningFilePath = "Preparing to analyse...";
+                    TotalSizeToScan = DrivesExplorer.GetSpace_Folder(folder);
+                });
 
                 if (TotalSizeToScan < 0)
                 {
@@ -480,12 +485,7 @@ namespace DocSearcher.ViewModel
 
                 await Task.Run(() =>
                 {
-                    // change the code here, see above
-                    foreach (var drive in Drives)
-                    {
-                        if (drive.Checked)
-                            SearchFiles(new DirectoryInfo(drive.Name), _paths);
-                    }
+                    RecursiveSearchFilesIntoDirectory(new DirectoryInfo(folder));
                     ScanningFilePath = "Done.. :)";
                 });
             }
@@ -496,29 +496,22 @@ namespace DocSearcher.ViewModel
             Messenger.Default.Send(new ChangeWindowSizeMessage("stat"));
         }
 
-        /// <summary>
-        /// Take into parameters directory name and List to fill.
-        /// Fill the last one with paths of found files.
-        /// </summary>
-        /// <param name="dir_info"></param>
-        /// <param name="file_list"></param>
-        private void SearchFiles(DirectoryInfo dir_info, List<string> file_list)
+        private void RecursiveSearchFilesIntoDirectory(DirectoryInfo dir_info)
         {
             try
             {
                 foreach (var subdir_info in dir_info.GetDirectories())
-                {
-                    SearchFiles(subdir_info, file_list);
-                }
+                    RecursiveSearchFilesIntoDirectory(subdir_info);
             }
             catch { }
+
             try
             {
                 foreach (FileInfo file_info in dir_info.GetFiles())
                 {
                     if (_extensions.Any(ext => ext == file_info.Extension))
                     {
-                        file_list.Add(file_info.FullName);
+                        _paths.Add(file_info.FullName);
                         FilesFound++;
                     }
 
