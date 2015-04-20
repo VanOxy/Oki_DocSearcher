@@ -460,7 +460,7 @@ namespace DocSearcher.ViewModel
             // todo --> create Modern Charts page, bindings
             //ActiveView = ChartsControl;
 
-            Messenger.Default.Send(new ChangeWindowSizeMessage("stat"));
+            //Messenger.Default.Send(new ChangeWindowSizeMessage("stat"));
         }
 
         private async void Scan()
@@ -540,7 +540,51 @@ namespace DocSearcher.ViewModel
         {
             _paths.Add(file_info.FullName);
 
-            //if(file_info.Extension == )
+            string type = GetTypeFromExtension(file_info.Extension);
+            string ext = file_info.Extension.TrimStart('.');
+
+            // just for security, after tests delete
+            if (type == "Error")
+            {
+                MessageBox.Show("Error while getting information about file... See your code dude!!!");
+                return;
+            }
+
+            var docTypeCollection_Item = (from item in Stats
+                                          where item.Type == type
+                                          select item).FirstOrDefault();
+
+            var omg = docTypeCollection_Item.Extensions
+                        .Where(itm => itm.Extension == ext).FirstOrDefault();
+
+            if (omg == null)
+            {
+                ExtensionSpace extSpace = new ExtensionSpace();
+                extSpace.Extension = ext;
+                extSpace.Space = file_info.Length;
+                docTypeCollection_Item.Extensions.Add(extSpace);
+            }
+            else
+                omg.Space += file_info.Length;
+        }
+
+        private string GetTypeFromExtension(string extension)
+        {
+            string ext = extension.TrimStart('.');
+
+            foreach (var item in ImageExtensions)
+                if (item.Name == ext)
+                    return item.Type;
+            foreach (var item in MusicExtensions)
+                if (item.Name == ext)
+                    return item.Type;
+            foreach (var item in DocumentExtensions)
+                if (item.Name == ext)
+                    return item.Type;
+            foreach (var item in VideoExtensions)
+                if (item.Name == ext)
+                    return item.Type;
+            return "Error";
         }
 
         #region Tools
