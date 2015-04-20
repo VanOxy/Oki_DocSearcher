@@ -122,7 +122,7 @@ namespace DocSearcher.ViewModel
             AddExtensionCommand = new RelayCommand<string>(AddExtension);
             RemoveExtensionCommand = new RelayCommand<string>(DeleteExtension);
             SelectFolderCommand = new RelayCommand(SelectFolder);
-            StartSearchCommand = new RelayCommand(StartScanning);
+            StartSearchCommand = new RelayCommand(PrepareAndStartScan);
         }
 
         private void AcceedSelectionControl()
@@ -350,10 +350,12 @@ namespace DocSearcher.ViewModel
 
         #endregion SelectionMode
 
-        #region FilesResearch
+        #region FilesResearchMode
 
         private List<string> _extensions = new List<string>();
         private List<string> _paths = new List<string>();
+
+        #region Getters&Setters for VM
 
         private int _filesFound = 0;
 
@@ -427,7 +429,9 @@ namespace DocSearcher.ViewModel
             }
         }
 
-        private async void StartScanning()
+        #endregion Getters&Setters for VM
+
+        private void PrepareAndStartScan()
         {
             // check for extensions
             GetSelectedExtensions();
@@ -446,9 +450,21 @@ namespace DocSearcher.ViewModel
                 return;
             }
 
+            InitStockObjects();
+
             ActiveView = ResearchControl;
             Messenger.Default.Send(new ChangeWindowSizeMessage("research"));
 
+            Scan();
+
+            // todo --> create Modern Charts page, bindings
+            //ActiveView = ChartsControl;
+
+            Messenger.Default.Send(new ChangeWindowSizeMessage("stat"));
+        }
+
+        private async void Scan()
+        {
             // if drives are selected
             if (ScanningFilePath == "")
             {
@@ -489,11 +505,6 @@ namespace DocSearcher.ViewModel
                     ScanningFilePath = "Done.. :)";
                 });
             }
-            // todo --> create Modern Charts page, bindings, adapt size
-            //ActiveView = GraphicsControl;
-
-            // adapt window size
-            Messenger.Default.Send(new ChangeWindowSizeMessage("stat"));
         }
 
         private void RecursiveSearchFilesIntoDirectory(DirectoryInfo dir_info)
@@ -509,18 +520,27 @@ namespace DocSearcher.ViewModel
             {
                 foreach (FileInfo file_info in dir_info.GetFiles())
                 {
-                    if (_extensions.Any(ext => ext == file_info.Extension))
-                    {
-                        _paths.Add(file_info.FullName);
-                        FilesFound++;
-                    }
-
+                    // modify progress view
                     ScanningFilePath = file_info.FullName;
                     FilesScanned++;
                     Progress += file_info.Length;
+
+                    // if convinient extension, get info
+                    if (_extensions.Any(ext => ext == file_info.Extension))
+                    {
+                        RecoltInformations(file_info);
+                        FilesFound++;
+                    }
                 }
             }
             catch { }
+        }
+
+        private void RecoltInformations(FileInfo file_info)
+        {
+            _paths.Add(file_info.FullName);
+
+            //if(file_info.Extension == )
         }
 
         #region Tools
@@ -556,9 +576,41 @@ namespace DocSearcher.ViewModel
             return true;
         }
 
+        private void InitStockObjects()
+        {
+            InitFor(ImageExtensions);
+            InitFor(MusicExtensions);
+            InitFor(DocumentExtensions);
+            InitFor(VideoExtensions);
+        }
+
+        private void InitFor(ObservableCollection<Extension> collection)
+        {
+            bool flag = false;
+            foreach (var item in collection)
+            {
+                if (item.Checked)
+                {
+                    if (flag)
+                        return;
+
+                    Stats.Add(new DocTypeCollection(item.Type));
+                    flag = true;
+                }
+            }
+        }
+
         #endregion Tools
 
-        #endregion FilesResearch
+        #endregion FilesResearchMode
+
+        #region ChartsMode
+
+        // stock objects
+        public ObservableCollection<DocTypeCollection> Stats =
+            new ObservableCollection<DocTypeCollection>();
+
+        #endregion ChartsMode
 
         public MainViewModel()
         {

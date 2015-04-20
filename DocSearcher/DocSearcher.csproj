@@ -79,6 +79,9 @@
     <Reference Include="AvalonLibrary">
       <HintPath>..\packages\AvalonLibrary.2.2.0.0\lib\net40\AvalonLibrary.dll</HintPath>
     </Reference>
+    <Reference Include="De.TorstenMandelkow.MetroChart">
+      <HintPath>..\..\..\..\..\Desktop\MetroChart\De.TorstenMandelkow.MetroChart.WPF\bin\Debug\De.TorstenMandelkow.MetroChart.dll</HintPath>
+    </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\EntityFramework.6.1.2\lib\net45\EntityFramework.dll</HintPath>
@@ -128,6 +131,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Control\ChartsControl.xaml.cs">
+      <DependentUpon>ChartsControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Message\ExtensionManagementFileTypeSelectedMessage.cs" />
     <Compile Include="Control\ExtensionsManagementControl.xaml.cs">
       <DependentUpon>ExtensionsManagementControl.xaml</DependentUpon>
@@ -138,8 +144,10 @@
     <Compile Include="Control\SelectionControl.xaml.cs">
       <DependentUpon>SelectionControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Model\DocTypeCollection.cs" />
     <Compile Include="Model\Drive.cs" />
     <Compile Include="Model\Extension.cs" />
+    <Compile Include="Model\ExtensionSpace.cs" />
     <Compile Include="sqlite-net\SQLite.cs" />
     <Compile Include="sqlite-net\SQLiteAsync.cs" />
     <Compile Include="Utilities\DrivesExplorer.cs" />
@@ -159,6 +167,10 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Control\ChartsControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Control\ExtensionsManagementControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
