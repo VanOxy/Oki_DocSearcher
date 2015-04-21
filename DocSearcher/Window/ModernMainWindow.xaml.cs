@@ -32,8 +32,8 @@ namespace DocSearcher.View
 
         private void AdaptWindowForGraphicsMode()
         {
-            this.Height = SystemParameters.PrimaryScreenHeight * 0.85;
-            this.Width = SystemParameters.PrimaryScreenWidth * 0.85;
+            this.Height = SystemParameters.PrimaryScreenHeight * 0.6;
+            this.Width = SystemParameters.PrimaryScreenWidth * 0.6;
             CenterWindowOnScreen();
             this.ResizeMode = System.Windows.ResizeMode.CanResizeWithGrip;
         }
@@ -41,6 +41,7 @@ namespace DocSearcher.View
         private void AdaptWindowForResearchMode()
         {
             this.Height = 130;
+            this.Width = 605;
             this.ResizeMode = System.Windows.ResizeMode.CanMinimize;
         }
 

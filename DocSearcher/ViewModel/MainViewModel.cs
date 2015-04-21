@@ -26,6 +26,7 @@ namespace DocSearcher.ViewModel
         public SelectionControl SelectionControl;
         public ResearchControl ResearchControl;
         public ExtensionsManagementControl ExtensionsManagementControl;
+        public ChartsControl MyChartsControl;
         private UserControl _activeView;
 
         public UserControl ActiveView
@@ -41,6 +42,18 @@ namespace DocSearcher.ViewModel
                 _activeView = value;
                 RaisePropertyChanged("ActiveView");
             }
+        }
+
+        private void LoadControls(MainWindowUidMessage obj)
+        {
+            Dispatcher.FromThread(obj.ThreadUid).Invoke(() =>
+            {
+                SelectionControl = new SelectionControl();
+                ResearchControl = new ResearchControl();
+                ExtensionsManagementControl = new ExtensionsManagementControl();
+            });
+
+            ActiveView = SelectionControl;
         }
 
         #endregion UserControlManagement
@@ -334,18 +347,6 @@ namespace DocSearcher.ViewModel
             ScanningFilePath = "";
         }
 
-        private void LoadControls(MainWindowUidMessage obj)
-        {
-            Dispatcher.FromThread(obj.ThreadUid).Invoke(() =>
-            {
-                SelectionControl = new SelectionControl();
-                ResearchControl = new ResearchControl();
-                ExtensionsManagementControl = new ExtensionsManagementControl();
-            });
-
-            ActiveView = SelectionControl;
-        }
-
         #endregion Tools
 
         #endregion SelectionMode
@@ -456,12 +457,20 @@ namespace DocSearcher.ViewModel
             Messenger.Default.Send(new ChangeWindowSizeMessage("research"));
 
             var scanResult = await Scan();
+
+            if (scanResult == "fail")
+                MessageBox.Show("Error!!! See your code dude!!!\n" +
+                    "While scanning --> scanResult == false");
+
             NormalizeInformations();
 
-            // todo --> create Modern Charts page, bindings
-            //ActiveView = ChartsControl;
+            MyChartsControl = new ChartsControl(Stats);
 
-            //Messenger.Default.Send(new ChangeWindowSizeMessage("stat"));
+            ActiveView = MyChartsControl;
+            Messenger.Default.Send(new ChangeWindowSizeMessage("stat"));
+
+            // fill chart collectons
+            MyChartsControl.InitCharts();
         }
 
         private async Task<string> Scan()
@@ -666,7 +675,7 @@ namespace DocSearcher.ViewModel
             {
                 foreach (var extSpace in docType.Extensions)
                 {
-                    extSpace.Space = extSpace.Space / 1024 / 1024;
+                    extSpace.Space = extSpace.Space / 1024 / 1024;  //convert bits in bytes
                 }
             }
         }

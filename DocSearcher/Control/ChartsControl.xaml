@@ -4,20 +4,24 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
-             xmlns:chart="clr-namespace:De.TorstenMandelkow.MetroChart;assembly=De.TorstenMandelkow.MetroChart"
-             DataContext="{Binding Source={StaticResource Locator}, Path=Main}">
-    <Grid>
-        <chart:StackedColumnChart ChartTitle="Chart Title"
-                                  ChartSubTitle="Chart Sub-Title">
+             xmlns:chart="clr-namespace:De.TorstenMandelkow.MetroChart;assembly=De.TorstenMandelkow.MetroChart">
+    <Grid Margin="10">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+
+        <chart:StackedColumnChart x:Name="MyChart" ChartTitle="Stats :" ChartSubTitle="">
             <chart:StackedColumnChart.Series>
-                <chart:ChartSeries ItemsSource="{Binding Stats}"
-                                   DisplayMember="DocType"
-                                   ValueMember="" />
-                <chart:ChartSeries SeriesTitle="{Binding Stats.Type}"
-                                   DisplayMember="Category"
-                                   ValueMember="Number"
-                                   ItemsSource="{Binding Path=Warnings}" />
+                <chart:ChartSeries />
             </chart:StackedColumnChart.Series>
         </chart:StackedColumnChart>
+
+        <!--<WrapPanel HorizontalAlignment="Right" Grid.Row="1">
+            <TextBlock Text="Size in : "  Margin="0 0 10 0" />
+            <ComboBox ItemsSource="{Binding DataRepresentationList}" SelectedIndex="1"
+                      SelectionChanged="ComboBox_SelectionChanged" />
+        </WrapPanel>-->
     </Grid>
 </UserControl>
