@@ -431,7 +431,7 @@ namespace DocSearcher.ViewModel
 
         #endregion Getters&Setters for VM
 
-        private void PrepareAndStartScan()
+        private async void PrepareAndStartScan()
         {
             // check for extensions
             GetSelectedExtensions();
@@ -455,7 +455,8 @@ namespace DocSearcher.ViewModel
             ActiveView = ResearchControl;
             Messenger.Default.Send(new ChangeWindowSizeMessage("research"));
 
-            Scan();
+            var scanResult = await Scan();
+            NormalizeInformations();
 
             // todo --> create Modern Charts page, bindings
             //ActiveView = ChartsControl;
@@ -463,7 +464,7 @@ namespace DocSearcher.ViewModel
             //Messenger.Default.Send(new ChangeWindowSizeMessage("stat"));
         }
 
-        private async void Scan()
+        private async Task<string> Scan()
         {
             // if drives are selected
             if (ScanningFilePath == "")
@@ -496,7 +497,7 @@ namespace DocSearcher.ViewModel
                     MessageBox.Show("In order to perform research into selected directory you need to launch application with administrator privileges.\n" +
                                     "Please restart the application as administrator.");
                     ScanningFilePath = "Error...!";
-                    return;
+                    return "fail";
                 }
 
                 await Task.Run(() =>
@@ -505,6 +506,7 @@ namespace DocSearcher.ViewModel
                     ScanningFilePath = "Done.. :)";
                 });
             }
+            return "success";
         }
 
         private void RecursiveSearchFilesIntoDirectory(DirectoryInfo dir_info)
@@ -640,6 +642,31 @@ namespace DocSearcher.ViewModel
 
                     Stats.Add(new DocTypeCollection(item.Type));
                     flag = true;
+                }
+            }
+        }
+
+        private void NormalizeInformations()
+        {
+            ObservableCollection<DocTypeCollection> ItemsToRemove =
+                new ObservableCollection<DocTypeCollection>();
+
+            foreach (var item in Stats)
+            {
+                if (item.Extensions.Count == 0)
+                    ItemsToRemove.Add(item);
+            }
+
+            foreach (var itm in ItemsToRemove)
+            {
+                Stats.Remove(itm);
+            }
+
+            foreach (var docType in Stats)
+            {
+                foreach (var extSpace in docType.Extensions)
+                {
+                    extSpace.Space = extSpace.Space / 1024 / 1024;
                 }
             }
         }
