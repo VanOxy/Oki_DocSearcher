@@ -12,7 +12,7 @@
             <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
 
-        <chart:StackedColumnChart x:Name="MyChart" ChartTitle="Stats :" ChartSubTitle="">
+        <chart:StackedColumnChart x:Name="MyChart" ChartTitle="Stats :" ChartSubTitle="In Megabytes">
             <chart:StackedColumnChart.Series>
                 <chart:ChartSeries />
             </chart:StackedColumnChart.Series>
