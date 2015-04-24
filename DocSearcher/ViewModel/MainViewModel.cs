@@ -152,9 +152,30 @@ namespace DocSearcher.ViewModel
         {
             try
             {
-                var extension = ExtensionToAdd;
-                if (String.IsNullOrEmpty(extension))
+                // check if fileType selected
+                if (FileTypeExtensionsList.Count() == 0)
+                {
+                    MessageBox.Show("You have choose any scope where to add the extension.");
                     return;
+                }
+
+                var extension = ExtensionToAdd;
+                // check the validity of enteres string
+                if (String.IsNullOrEmpty(extension))
+                {
+                    MessageBox.Show("You can't add an empty value.");
+                    return;
+                }
+
+                extension = NormalizeExtensionString(extension);
+
+                string verificationString = ExtensionExistInAnAnotherScope(extension);
+                if (verificationString != "OK")
+                {
+                    string message = "This extension already exist in \"" + verificationString + "\" scope";
+                    MessageBox.Show(message);
+                    return;
+                }
 
                 ExtensionToAdd = "";
                 var fileType = NormalizeFileTypeString(str);
@@ -174,6 +195,25 @@ namespace DocSearcher.ViewModel
                 RefreshExtensionLists();
             }
             catch { }
+        }
+
+        private string NormalizeExtensionString(string extension)
+        {
+            var ext = extension.Trim(new Char[] { ' ', '*', '.', ',', ':' }).ToLower();
+            return ext;
+        }
+
+        private string ExtensionExistInAnAnotherScope(string extension)
+        {
+            using (var db = new SQLiteConnection(connectionString))
+            {
+                var query = db.Table<Extension>().Where(ext => ext.Name.Equals(extension)).FirstOrDefault();
+
+                if (query == null)
+                    return "OK";
+
+                return query.Type;
+            }
         }
 
         private void DeleteExtension(string selectedExtension)
