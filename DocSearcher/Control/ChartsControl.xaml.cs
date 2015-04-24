@@ -1,30 +1,37 @@
 ﻿using De.TorstenMandelkow.MetroChart;
 using DocSearcher.Model;
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Windows.Controls;
 
 namespace DocSearcher.Control
 {
-    public partial class ChartsControl : UserControl
+    public partial class ChartsControl : UserControl, INotifyPropertyChanged
     {
         private ObservableCollection<DocTypeCollection> data;
 
-        //private List<string> _dataRepresentationList;
-        //public List<string> DataRepresentationList
-        //{
-        //    get
-        //    {
-        //        return _dataRepresentationList;
-        //    }
-        //    set
-        //    {
-        //        if (_dataRepresentationList != value)
-        //        {
-        //            _dataRepresentationList = value;
-        //            NotifyPropertyChanged("DataRepresentationList");
-        //        }
-        //    }
-        //}
+        public ObservableCollection<string> DataRepresentationList { get; set; }
+
+        private UserControl _activeChart = new UserControl();
+
+        public UserControl ActiveChart
+        {
+            get
+            {
+                return _activeChart;
+            }
+            set
+            {
+                if (_activeChart != value)
+                {
+                    _activeChart = value;
+                    NotifyPropertyChanged("ActiveChart");
+                }
+            }
+        }
 
         public ChartsControl(ObservableCollection<DocTypeCollection> collection)
         {
@@ -35,10 +42,24 @@ namespace DocSearcher.Control
             //InitAndFillDataRepresentationList();
         }
 
+        //<chart:StackedColumnChart x:Name="MyChart" ChartTitle="Stats :" ChartSubTitle="In Megabytes">
+        //    <chart:StackedColumnChart.Series>
+        //        <chart:ChartSeries />
+        //    </chart:StackedColumnChart.Series>
+        //</chart:StackedColumnChart>
+
         public void InitCharts()
         {
+            var myChart = new StackedColumnChart();
+
+            //var userControl = new UserControl();
+            //userControl.Content = chart;
+            //ActiveChart = userControl;
+
+            ActiveChart.Content = myChart;
+
             // Clear all current series (including the dummy 1st one the first time)
-            MyChart.Series.Clear();
+            myChart.Series.Clear();
 
             foreach (var item in data)
             {
@@ -57,7 +78,7 @@ namespace DocSearcher.Control
                 //removing or chaning series, set ItemsSource to null first (this will force it to update)
                 serie.ItemsSource = null;
                 // Then add to chart and set to actual data source
-                MyChart.Series.Add(serie);
+                myChart.Series.Add(serie);
                 serie.ItemsSource = Series;
             }
         }
@@ -70,16 +91,6 @@ namespace DocSearcher.Control
         //    DataRepresentationList.Add("B");
         //    DataRepresentationList.Add("MB");
         //    DataRepresentationList.Add("GB");
-        //}
-
-        //public event PropertyChangedEventHandler PropertyChanged;
-
-        //private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
-        //{
-        //    if (PropertyChanged != null)
-        //    {
-        //        PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-        //    }
         //}
 
         //private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -125,5 +136,15 @@ namespace DocSearcher.Control
         //}
 
         //#endregion working...
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
     }
 }
