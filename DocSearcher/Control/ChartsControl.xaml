@@ -18,14 +18,14 @@
 
             <GroupBox Header="Charts">
                 <StackPanel>
-                    <RadioButton Content="Stacked Columns" IsChecked="True" />
-                    <RadioButton Content="Columns" />
+                    <RadioButton Content="Stacked Columns" IsChecked="True" Checked="RadioButton_Checked" />
+                    <RadioButton Content="Columns" Checked="RadioButton_Checked" />
                 </StackPanel>
             </GroupBox>
 
             <GroupBox Header="Size in">
                 <StackPanel>
-                    <ComboBox ItemsSource="{Binding DataRepresentationList}" SelectedIndex="1" />
+                    <ComboBox ItemsSource="{Binding DataRepresentationList}" SelectedIndex="0" SelectionChanged="ComboBox_SelectionChanged" />
                 </StackPanel>
             </GroupBox>
 

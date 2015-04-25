@@ -12,6 +12,8 @@ namespace DocSearcher.Control
     public partial class ChartsControl : UserControl, INotifyPropertyChanged
     {
         private ObservableCollection<DocTypeCollection> data;
+        private bool _isInMB;
+        private bool _isColumnChart;
 
         public ObservableCollection<string> DataRepresentationList { get; set; }
 
@@ -35,28 +37,26 @@ namespace DocSearcher.Control
 
         public ChartsControl(ObservableCollection<DocTypeCollection> collection)
         {
-            InitializeComponent();
             data = collection;
             DataContext = this;
+            _isInMB = true;
+            _isColumnChart = false;
 
-            //InitAndFillDataRepresentationList();
+            InitAndFillDataRepresentationList();
+
+            InitializeComponent();
         }
-
-        //<chart:StackedColumnChart x:Name="MyChart" ChartTitle="Stats :" ChartSubTitle="In Megabytes">
-        //    <chart:StackedColumnChart.Series>
-        //        <chart:ChartSeries />
-        //    </chart:StackedColumnChart.Series>
-        //</chart:StackedColumnChart>
 
         public void InitCharts()
         {
             var myChart = new StackedColumnChart();
-
-            //var userControl = new UserControl();
-            //userControl.Content = chart;
-            //ActiveChart = userControl;
-
             ActiveChart.Content = myChart;
+            myChart.ChartTitle = "Resultats : ";
+
+            if (_isInMB)
+                myChart.ChartSubTitle = "In Megabytes";
+            else
+                myChart.ChartSubTitle = "In Gigabytes";
 
             // Clear all current series (including the dummy 1st one the first time)
             myChart.Series.Clear();
@@ -70,12 +70,21 @@ namespace DocSearcher.Control
                 serie.SeriesTitle = item.Type;
 
                 foreach (var itm in item.Extensions)
-                    Series.Add(itm);
+                {
+                    if (_isInMB == true)
+                        Series.Add(itm);
+                    else
+                        Series.Add(new FloatExtensionSpace()
+                        {
+                            Extension = itm.Extension,
+                            Space = Convert.ToDouble((itm.Space / 1024.0).ToString("N2"))
+                        });
+                }
 
                 serie.DisplayMember = "Extension";
                 serie.ValueMember = "Space";
                 // Important: if you want the graph to update when adding,
-                //removing or chaning series, set ItemsSource to null first (this will force it to update)
+                // removing or chaning series, set ItemsSource to null first (this will force it to update)
                 serie.ItemsSource = null;
                 // Then add to chart and set to actual data source
                 myChart.Series.Add(serie);
@@ -83,59 +92,88 @@ namespace DocSearcher.Control
             }
         }
 
-        //#region working...
+        private void InitAndFillDataRepresentationList()
+        {
+            DataRepresentationList = new ObservableCollection<string>();
+            DataRepresentationList.Add("MB");
+            DataRepresentationList.Add("GB");
+        }
 
-        //private void InitAndFillDataRepresentationList()
-        //{
-        //    _dataRepresentationList = new List<string>();
-        //    DataRepresentationList.Add("B");
-        //    DataRepresentationList.Add("MB");
-        //    DataRepresentationList.Add("GB");
-        //}
+        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            string size = ((ComboBox)sender).SelectedValue.ToString();
 
-        //private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        //{
-        //    string size = ((ComboBox)sender).SelectedValue.ToString();
+            switch (size)
+            {
+                case "MB":
+                    _isInMB = true;
+                    if (_isColumnChart)
+                        InitColumnChart();
+                    else
+                        InitCharts();
+                    break;
 
-        //    switch (size)
-        //    {
-        //        case "B":
-        //            break;
+                case "GB":
+                    _isInMB = false;
+                    if (_isColumnChart)
+                        InitColumnChart();
+                    else
+                        InitCharts();
+                    break;
+            }
+        }
 
-        //        case "MB":
-        //            break;
+        private void RadioButton_Checked(object sender, System.Windows.RoutedEventArgs e)
+        {
+            var value = ((RadioButton)sender).Content.ToString();
+            if (value == "Columns")
+                InitColumnChart();
+            else
+                InitCharts();
+        }
 
-        //        case "GB":
-        //            break;
-        //    }
-        //}
+        private void InitColumnChart()
+        {
+            ActiveChart.Content = null;
 
-        //private void ModifyDataSize()
-        //{
-        //    MyChart.Series.Clear();
+            var myChart = new ClusteredColumnChart();
+            ActiveChart.Content = myChart;
+            myChart.ChartTitle = "Resultats : ";
 
-        //    foreach (var item in data)
-        //    {
-        //        ObservableCollection<ExtensionSpace> Series = new ObservableCollection<ExtensionSpace>();
+            if (_isInMB)
+                myChart.ChartSubTitle = "In Megabytes";
+            else
+                myChart.ChartSubTitle = "In Gigabytes";
 
-        //        // Create and configure series
-        //        ChartSeries serie = new ChartSeries();
-        //        serie.SeriesTitle = item.Type;
+            myChart.Series.Clear();
 
-        //        foreach (var itm in item.Extensions)
-        //        {
-        //            Series.Add(itm);
-        //        }
+            foreach (var item in data)
+            {
+                ObservableCollection<ExtensionSpace> Series = new ObservableCollection<ExtensionSpace>();
 
-        //        serie.DisplayMember = "Extension";
-        //        serie.ValueMember = "Space";
-        //        serie.ItemsSource = null;
-        //        MyChart.Series.Add(serie);
-        //        serie.ItemsSource = Series;
-        //    }
-        //}
+                // Create and configure series
+                ChartSeries serie = new ChartSeries();
+                serie.SeriesTitle = item.Type;
 
-        //#endregion working...
+                foreach (var itm in item.Extensions)
+                {
+                    if (_isInMB == true)
+                        Series.Add(itm);
+                    else
+                        Series.Add(new FloatExtensionSpace()
+                        {
+                            Extension = itm.Extension,
+                            Space = Convert.ToDouble((itm.Space / 1024.0).ToString("N2"))
+                        });
+                }
+
+                serie.DisplayMember = "Extension";
+                serie.ValueMember = "Space";
+                serie.ItemsSource = null;
+                myChart.Series.Add(serie);
+                serie.ItemsSource = Series;
+            }
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
