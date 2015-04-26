@@ -9,6 +9,6 @@
 
     public class FloatExtensionSpace : ExtensionSpace
     {
-        public double Space { get; set; }
+        public new double Space { get; set; }
     }
 }

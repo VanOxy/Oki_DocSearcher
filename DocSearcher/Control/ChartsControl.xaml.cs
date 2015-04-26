@@ -15,8 +15,6 @@ namespace DocSearcher.Control
         private bool _isInMB;
         private bool _isColumnChart;
 
-        public ObservableCollection<string> DataRepresentationList { get; set; }
-
         private UserControl _activeChart = new UserControl();
 
         public UserControl ActiveChart
@@ -41,8 +39,6 @@ namespace DocSearcher.Control
             DataContext = this;
             _isInMB = true;
             _isColumnChart = false;
-
-            InitAndFillDataRepresentationList();
 
             InitializeComponent();
         }
@@ -92,16 +88,24 @@ namespace DocSearcher.Control
             }
         }
 
-        private void InitAndFillDataRepresentationList()
+        private void RadioButton_Checked(object sender, System.Windows.RoutedEventArgs e)
         {
-            DataRepresentationList = new ObservableCollection<string>();
-            DataRepresentationList.Add("MB");
-            DataRepresentationList.Add("GB");
+            var value = ((RadioButton)sender).Content.ToString();
+            if (value == "Columns")
+            {
+                InitColumnChart();
+                _isColumnChart = true;
+            }
+            else
+            {
+                InitCharts();
+                _isColumnChart = false;
+            }
         }
 
-        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void RadioButton_Size_Checked(object sender, System.Windows.RoutedEventArgs e)
         {
-            string size = ((ComboBox)sender).SelectedValue.ToString();
+            string size = ((RadioButton)sender).Content.ToString();
 
             switch (size)
             {
@@ -121,15 +125,6 @@ namespace DocSearcher.Control
                         InitCharts();
                     break;
             }
-        }
-
-        private void RadioButton_Checked(object sender, System.Windows.RoutedEventArgs e)
-        {
-            var value = ((RadioButton)sender).Content.ToString();
-            if (value == "Columns")
-                InitColumnChart();
-            else
-                InitCharts();
         }
 
         private void InitColumnChart()
