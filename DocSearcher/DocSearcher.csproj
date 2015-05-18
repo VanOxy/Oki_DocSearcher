@@ -134,6 +134,12 @@
     <Compile Include="Control\ChartsControl.xaml.cs">
       <DependentUpon>ChartsControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Control\DetailsControl.xaml.cs">
+      <DependentUpon>DetailsControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Message\ShowSelectionMessage.cs" />
+    <Compile Include="Message\ShowChartsMessage.cs" />
+    <Compile Include="Message\ShowDetailsMessage.cs" />
     <Compile Include="Message\ExtensionManagementFileTypeSelectedMessage.cs" />
     <Compile Include="Control\ExtensionsManagementControl.xaml.cs">
       <DependentUpon>ExtensionsManagementControl.xaml</DependentUpon>
@@ -168,6 +174,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="Control\ChartsControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Control\DetailsControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

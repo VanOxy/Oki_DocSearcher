@@ -1,5 +1,7 @@
 ﻿using De.TorstenMandelkow.MetroChart;
+using DocSearcher.Message;
 using DocSearcher.Model;
+using GalaSoft.MvvmLight.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -47,7 +49,7 @@ namespace DocSearcher.Control
         {
             var myChart = new StackedColumnChart();
             ActiveChart.Content = myChart;
-            myChart.ChartTitle = "Resultats : ";
+            myChart.ChartTitle = "Total size : ";
 
             if (_isInMB)
                 myChart.ChartSubTitle = "In Megabytes";
@@ -133,7 +135,7 @@ namespace DocSearcher.Control
 
             var myChart = new ClusteredColumnChart();
             ActiveChart.Content = myChart;
-            myChart.ChartTitle = "Resultats : ";
+            myChart.ChartTitle = "Total size : ";
 
             if (_isInMB)
                 myChart.ChartSubTitle = "In Megabytes";
@@ -178,6 +180,16 @@ namespace DocSearcher.Control
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
+        }
+
+        private void MoreInformations_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            Messenger.Default.Send(new ShowDetailsMessage());
+        }
+
+        private void NewResearch_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            //Messenger.Default.Send(new ShowSelectionMessage());
         }
     }
 }

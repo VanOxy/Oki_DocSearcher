@@ -27,6 +27,7 @@ namespace DocSearcher.ViewModel
         public ResearchControl ResearchControl;
         public ExtensionsManagementControl ExtensionsManagementControl;
         public ChartsControl MyChartsControl;
+        private DetailsControl Details;
         private UserControl _activeView;
 
         public UserControl ActiveView
@@ -51,6 +52,7 @@ namespace DocSearcher.ViewModel
                 SelectionControl = new SelectionControl();
                 ResearchControl = new ResearchControl();
                 ExtensionsManagementControl = new ExtensionsManagementControl();
+                Details = new DetailsControl();
             });
 
             ActiveView = SelectionControl;
@@ -377,14 +379,29 @@ namespace DocSearcher.ViewModel
         private void RegisterMessages()
         {
             Messenger.Default.Register<MainWindowUidMessage>(this, LoadControls);
-            Messenger.Default.Register<ExtensionManagementFileTypeSelectedMessage>
-                (this, UpdateManagementExtensionsList);
+            Messenger.Default.Register<ExtensionManagementFileTypeSelectedMessage>(this, UpdateManagementExtensionsList);
             Messenger.Default.Register<ClearScaningFilePathMessage>(this, ClearScaningFilePath);
+            Messenger.Default.Register<ShowDetailsMessage>(this, SwithToDetailsMode);
+            Messenger.Default.Register<ShowChartsMessage>(this, SwithToChartsMode);
+            Messenger.Default.Register<ShowSelectionMessage>(this, SwithToSelectionMode);
         }
 
         private void ClearScaningFilePath(Message.ClearScaningFilePathMessage obj)
         {
             ScanningFilePath = "";
+        }
+
+        private void SwithToSelectionMode(ShowSelectionMessage obj)
+        {
+            // todo
+            // clear all variables in selection, research, and charts
+            // clear stats !!!
+
+            // ca ne fonctionne quedal
+            //this.SelectionControl = null;
+            //this.SelectionControl = new SelectionControl();
+
+            ActiveView = SelectionControl;
         }
 
         #endregion Tools
@@ -730,7 +747,22 @@ namespace DocSearcher.ViewModel
         public ObservableCollection<DocTypeCollection> Stats =
             new ObservableCollection<DocTypeCollection>();
 
+        private void SwithToChartsMode(ShowChartsMessage obj)
+        {
+            ActiveView = MyChartsControl;
+        }
+
         #endregion ChartsMode
+
+        #region DetailsMode
+
+        private void SwithToDetailsMode(ShowDetailsMessage obj)
+        {
+            Details.GetStats(Stats);
+            ActiveView = Details;
+        }
+
+        #endregion DetailsMode
 
         public MainViewModel()
         {
