@@ -20,9 +20,9 @@
         <Grid Grid.Row="1" HorizontalAlignment="Stretch">
             <WrapPanel HorizontalAlignment="Left">
                 <TextBlock Text="Category : " Margin="0 0 10 0" />
-                <ComboBox x:Name="CategoriesList" Width="120" />
+                <ComboBox x:Name="CategoriesList" Width="120" SelectionChanged="CategoriesList_SelectionChanged"  />
             </WrapPanel>
-            <WrapPanel HorizontalAlignment="Right">
+            <WrapPanel x:Name="ExtensionsChoiseZone" HorizontalAlignment="Right" Visibility="Hidden">
                 <TextBlock Text="Extension : " Margin="0 0 10 0" />
                 <ComboBox x:Name="ExtensionsList" Width="120" />
             </WrapPanel>

@@ -393,15 +393,38 @@ namespace DocSearcher.ViewModel
 
         private void SwithToSelectionMode(ShowSelectionMessage obj)
         {
-            // todo
-            // clear all variables in selection, research, and charts
             // clear stats !!!
-
-            // ca ne fonctionne quedal
-            //this.SelectionControl = null;
-            //this.SelectionControl = new SelectionControl();
+            ClearBindings();
 
             ActiveView = SelectionControl;
+        }
+
+        private void ClearBindings()
+        {
+            // selection view
+            foreach (var item in DocumentExtensions)
+                item.Checked = false;
+            foreach (var item in ImageExtensions)
+                item.Checked = false;
+            foreach (var item in VideoExtensions)
+                item.Checked = false;
+            foreach (var item in MusicExtensions)
+                item.Checked = false;
+            foreach (var item in Drives)
+                item.Checked = false;
+
+            // research view
+            ScanningFilePath = "";
+            FilesFound = 0;
+            FilesScanned = 0;
+            Progress = 0;
+            TotalSizeToScan = 0;
+
+            _extensions.Clear();
+            _paths.Clear();
+            Stats.Clear();
+            Details.Activated = false;
+            Details.ClearValues();
         }
 
         #endregion Tools
@@ -758,7 +781,12 @@ namespace DocSearcher.ViewModel
 
         private void SwithToDetailsMode(ShowDetailsMessage obj)
         {
-            Details.GetStats(Stats);
+            if (Details.Activated == false)
+            {
+                Details.GetStats(_paths, Stats);
+                Details.InitValues();
+            }
+
             ActiveView = Details;
         }
 

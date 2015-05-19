@@ -189,7 +189,7 @@ namespace DocSearcher.Control
 
         private void NewResearch_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            //Messenger.Default.Send(new ShowSelectionMessage());
+            Messenger.Default.Send(new ShowSelectionMessage());
         }
     }
 }

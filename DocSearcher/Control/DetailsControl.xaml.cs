@@ -1,4 +1,5 @@
 ﻿using DocSearcher.Message;
+using DocSearcher.Model;
 using GalaSoft.MvvmLight.Messaging;
 using System;
 using System.Collections.Generic;
@@ -19,22 +20,75 @@ namespace DocSearcher.Control
 {
     public partial class DetailsControl : UserControl
     {
-        private System.Collections.ObjectModel.ObservableCollection<Model.DocTypeCollection> Stats;
+        private List<string> _paths;
+        private System.Collections.ObjectModel.ObservableCollection<DocTypeCollection> _stats;
+        private bool _activated = false;
+
+        public bool Activated
+        {
+            get { return _activated; }
+            set { _activated = value; }
+        }
 
         public DetailsControl()
         {
             InitializeComponent();
         }
 
-        internal void GetStats(System.Collections.ObjectModel.ObservableCollection<Model.DocTypeCollection> Stats)
-        {
-            // passer la liste avc les paths
-            this.Stats = Stats;
-        }
-
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             Messenger.Default.Send(new ShowChartsMessage());
+        }
+
+        internal void GetStats(List<string> paths,
+            System.Collections.ObjectModel.ObservableCollection<DocTypeCollection> Stats)
+        {
+            _stats = Stats;
+            _paths = paths;
+        }
+
+        #region Tools
+
+        public void InitValues()
+        {
+            // make activated for further use
+            // to avoid variable reassignation
+            Activated = true;
+
+            FillCategoriesList();
+        }
+
+        private void FillCategoriesList()
+        {
+            foreach (var item in _stats)
+            {
+                CategoriesList.Items.Add(item.Type.ToString());
+            }
+        }
+
+        private void FillExtensionsList(string selectedCategorie)
+        {
+            // todo
+        }
+
+        #endregion Tools
+
+        private void CategoriesList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (((ComboBox)sender).Items.Count > 0)
+            {
+                string selectedCategorie = ((ComboBox)sender).SelectedItem.ToString();
+
+                ExtensionsChoiseZone.Visibility = System.Windows.Visibility.Visible;
+
+                FillExtensionsList(selectedCategorie);
+            }
+        }
+
+        internal void ClearValues()
+        {
+            CategoriesList.Items.Clear();
+            ExtensionsChoiseZone.Visibility = System.Windows.Visibility.Hidden;
         }
     }
 }
