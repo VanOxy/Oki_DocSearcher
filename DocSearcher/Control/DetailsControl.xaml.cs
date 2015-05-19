@@ -68,7 +68,18 @@ namespace DocSearcher.Control
 
         private void FillExtensionsList(string selectedCategorie)
         {
-            // todo
+            ExtensionsList.Items.Clear();
+
+            var necessaryObject = (from obj in _stats
+                                   where obj.Type == selectedCategorie
+                                   select obj.Extensions).FirstOrDefault();
+            var extensionsContext = (from a in necessaryObject
+                                     select a.Extension).ToList();
+
+            foreach (var item in extensionsContext)
+            {
+                ExtensionsList.Items.Add(item.ToString());
+            }
         }
 
         #endregion Tools
@@ -88,6 +99,7 @@ namespace DocSearcher.Control
         internal void ClearValues()
         {
             CategoriesList.Items.Clear();
+            ExtensionsList.Items.Clear();
             ExtensionsChoiseZone.Visibility = System.Windows.Visibility.Hidden;
         }
     }
