@@ -1,7 +1,11 @@
 ﻿using DocSearcher.Message;
 using DocSearcher.Model;
 using GalaSoft.MvvmLight.Messaging;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -37,14 +41,11 @@ namespace DocSearcher.Control
             _paths = paths;
         }
 
-        #region Tools
-
         public void InitValues()
         {
             // make activated for further use
             // to avoid variable reassignation
             Activated = true;
-
             FillCategoriesList();
         }
 
@@ -56,9 +57,11 @@ namespace DocSearcher.Control
             }
         }
 
-        private void FillExtensionsList(string selectedCategorie)
+        private List<string> FillExtensionsList(string selectedCategorie)
         {
             ExtensionsList.Items.Clear();
+
+            var tempList = new List<string>();
 
             var necessaryObject = (from obj in _stats
                                    where obj.Type == selectedCategorie
@@ -69,10 +72,10 @@ namespace DocSearcher.Control
             foreach (var item in extensionsContext)
             {
                 ExtensionsList.Items.Add(item.ToString());
+                tempList.Add(item.ToString());
             }
+            return tempList;
         }
-
-        #endregion Tools
 
         private void CategoriesList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -82,8 +85,32 @@ namespace DocSearcher.Control
 
                 ExtensionsChoiseZone.Visibility = System.Windows.Visibility.Visible;
 
-                FillExtensionsList(selectedCategorie);
+                List<string> extList = FillExtensionsList(selectedCategorie);
+                FillPathsList(extList);
             }
+        }
+
+        private void ExtensionsList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (((ComboBox)sender).Items.Count > 0)
+            {
+                List<string> temp = new List<string>();
+                temp.Add(((ComboBox)sender).SelectedItem.ToString());
+                FillPathsList(temp);
+            }
+        }
+
+        private void FillPathsList(List<string> extList)
+        {
+            // add point at begin of extensions to avoid string casting the whole list of paths
+            List<string> localExtensionsList = new List<string>();
+            foreach (var item in extList)
+                localExtensionsList.Add("." + item);
+
+            PathsList.Items.Clear();
+            foreach (var str in _paths)
+                if (localExtensionsList.Contains(Path.GetExtension(str)))
+                    PathsList.Items.Add(str);
         }
 
         internal void ClearValues()
@@ -91,6 +118,13 @@ namespace DocSearcher.Control
             CategoriesList.Items.Clear();
             ExtensionsList.Items.Clear();
             ExtensionsChoiseZone.Visibility = System.Windows.Visibility.Hidden;
+        }
+
+        private void PathsList_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            string parentFolder =
+                Directory.GetParent(((ListBox)sender).SelectedItem.ToString()).ToString();
+            Process.Start(parentFolder);
         }
     }
 }

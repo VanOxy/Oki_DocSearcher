@@ -30,7 +30,7 @@
                 </StackPanel>
             </GroupBox>
 
-            <Button Content="More informations" Margin="0 10 0 0" Click="MoreInformations_Click" />
+            <Button Content="Files location" Margin="0 10 0 0" Click="MoreInformations_Click" />
         </StackPanel>
         <Button Content="New research" VerticalAlignment="Bottom" Grid.Column="1" Click="NewResearch_Click" />
     </Grid>
