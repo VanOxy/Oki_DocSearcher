@@ -4,7 +4,6 @@ using GalaSoft.MvvmLight.Messaging;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -122,9 +121,10 @@ namespace DocSearcher.Control
 
         private void PathsList_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            string parentFolder =
-                Directory.GetParent(((ListBox)sender).SelectedItem.ToString()).ToString();
-            Process.Start(parentFolder);
+            string filePath = ((ListBox)sender).SelectedItem.ToString();
+            string argument = @"/select, " + filePath;
+
+            System.Diagnostics.Process.Start("explorer.exe", argument);
         }
     }
 }
